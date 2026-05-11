@@ -16,7 +16,10 @@
     </button>
     {% endif %}
     {% if participant.status == 'traced' %}
-    <a href="{% url 'interviews:create' participant.pk %}" class="btn btn-primary"><i class="bi bi-clipboard-plus me-1"></i>Create Interview</a>
+    <form method="post" action="{% url 'interviews:create' participant.pk %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary"><i class="bi bi-clipboard-plus me-1"></i>Create Interview</button>
+    </form>
     {% endif %}
   </div>
 </div>

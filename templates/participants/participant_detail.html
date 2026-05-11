@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}{{ participant.pseudo_code }} — ICED SPDITS{% endblock %}
+{% block page_title %}Participant Detail{% endblock %}
+{% block nav_participants %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0"><span class="pseudocode fs-4">{{ participant.pseudo_code }}</span></h4>
+    <p class="text-muted small">{{ participant.partner.name }} &bull; <span class="badge bg-{{ participant.get_status_badge }}">{{ participant.get_status_display }}</span></p>
+  </div>
+  <div class="d-flex gap-2">
+    {% if can_reidentify %}
+    <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#reidentifyModal">
+      <i class="bi bi-eye me-1"></i>Re-Identify
+    </button>
+    {% endif %}
+    {% if participant.status == 'traced' %}
+    <a href="{% url 'interviews:create' participant.pk %}" class="btn btn-primary"><i class="bi bi-clipboard-plus me-1"></i>Create Interview</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Quasi-Identifier Data</h6></div>
+      <div class="card-body">
+        <table class="table table-borderless table-sm">
+          {% for k, v in participant.data.items %}
+          <tr><th class="text-muted text-capitalize" style="width:40%">{{ k|title }}</th><td>{{ v|default:'—' }}</td></tr>
+          {% empty %}
+          <tr><td class="text-muted">No data available.</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card mb-4">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Record Details</h6></div>
+      <div class="card-body">
+        <table class="table table-borderless table-sm">
+          <tr><th class="text-muted">Partner</th><td>{{ participant.partner.name }}</td></tr>
+          <tr><th class="text-muted">Upload Batch</th><td><code class="small">{{ participant.upload_batch.batch_id|default:'—' }}</code></td></tr>
+          <tr><th class="text-muted">Row #</th><td>{{ participant.row_number }}</td></tr>
+          <tr><th class="text-muted">Created</th><td>{{ participant.created_at|date:"d M Y, H:i" }}</td></tr>
+          <tr><th class="text-muted">Duplicate</th><td>{% if participant.is_duplicate %}<span class="badge bg-warning text-dark">Yes</span>{% else %}No{% endif %}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tracing history preview -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">Tracing History</h6>
+        <a href="{% url 'tracing:history' participant.pk %}" class="small text-primary">Full history</a>
+      </div>
+      <div class="card-body p-0">
+        {% if tracing_logs %}
+        <div class="timeline p-3">
+          {% for log in tracing_logs %}
+          <div class="timeline-item">
+            <div class="small fw-semibold">{{ log.previous_status|default:'—' }} → {{ log.new_status }}</div>
+            <div class="text-muted small">{{ log.notes|default:'No notes' }}</div>
+            <div class="text-muted small">{{ log.updated_by.get_full_name|default:'System' }} &bull; {{ log.created_at|timesince }} ago</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-3 small">No tracing updates yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Re-identification Modal -->
+{% if can_reidentify %}
+<div class="modal fade" id="reidentifyModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'participants:reidentify' participant.pk %}">
+        {% csrf_token %}
+        <div class="modal-header border-warning bg-warning-subtle">
+          <h6 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Secure Re-Identification</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning py-2 small">
+            <strong>Warning:</strong> This action will be fully audited including your identity, IP address, and reason.
+            Data will be hidden after 60 seconds.
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Reason for Re-Identification <span class="text-danger">*</span></label>
+            <textarea name="reason" class="form-control" rows="3" required
+                      placeholder="e.g. Participant follow-up for data correction…"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning fw-semibold">
+            <i class="bi bi-eye me-1"></i>Reveal Identity
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="mt-3"><a href="{% url 'participants:list' %}" class="btn btn-outline-secondary">← Back</a></div>
+{% endblock %}

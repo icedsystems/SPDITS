@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Assignments — ICED SPDITS{% endblock %}
+{% block page_title %}Assignments{% endblock %}
+{% block nav_assignments %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div><h4 class="fw-bold mb-0">Assignments</h4><p class="text-muted small">All participant assignments</p></div>
+  {% if is_admin or is_supervisor %}<a href="{% url 'assignments:queue' %}" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Assign More</a>{% endif %}
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0 datatable">
+      <thead class="bg-light"><tr><th>Pseudocode</th><th>Enumerator</th><th>Supervisor</th><th>Status</th><th>Due</th><th>Assigned</th></tr></thead>
+      <tbody>
+        {% for a in assignments %}
+        <tr>
+          <td><a href="{% url 'participants:detail' a.participant.pk %}"><span class="pseudocode">{{ a.participant.pseudo_code }}</span></a></td>
+          <td class="small">{{ a.enumerator.get_full_name }}</td>
+          <td class="small text-muted">{{ a.supervisor.get_full_name|default:'—' }}</td>
+          <td><span class="badge bg-{% if a.status == 'active' %}success{% elif a.status == 'completed' %}dark{% else %}secondary{% endif %}">{{ a.get_status_display }}</span></td>
+          <td class="small text-muted">{{ a.due_date|date:"d M Y"|default:'—' }}</td>
+          <td class="small text-muted">{{ a.assigned_at|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No assignments yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

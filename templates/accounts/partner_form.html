@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Partner — ICED SPDITS{% endblock %}
+{% block page_title %}{% if object %}Edit Partner{% else %}Add Partner{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold"><i class="bi bi-building me-2"></i>Partner Details</h6></div>
+      <div class="card-body">
+        <form method="post">{% csrf_token %}{% crispy form %}</form>
+        <a href="{% url 'accounts:partner_list' %}" class="btn btn-link text-muted mt-2">← Back</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

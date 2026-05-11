@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — ICED SPDITS{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold mb-0">Welcome, {{ user.first_name }} 👋</h4>
+  <p class="text-muted">System overview and activity feed</p>
+</div>
+
+<!-- Stats row 1 -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">Total Uploads</div><div class="stat-number">{{ total_uploads }}</div></div>
+        <i class="bi bi-cloud-upload stat-icon"></i>
+      </div>
+      <a href="{% url 'uploads:list' %}" class="text-white-50 small mt-2 d-block">View all →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card orange">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">Pending Approval</div><div class="stat-number">{{ pending_approvals }}</div></div>
+        <i class="bi bi-clock-history stat-icon"></i>
+      </div>
+      <a href="{% url 'uploads:pending' %}" class="text-white-50 small mt-2 d-block">Review now →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card teal">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">Total Participants</div><div class="stat-number">{{ total_participants }}</div></div>
+        <i class="bi bi-people stat-icon"></i>
+      </div>
+      <a href="{% url 'participants:list' %}" class="text-white-50 small mt-2 d-block">View →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card green">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">Completed Interviews</div><div class="stat-number">{{ completed_interviews }}</div></div>
+        <i class="bi bi-clipboard2-check stat-icon"></i>
+      </div>
+      <a href="{% url 'interviews:list' %}" class="text-white-50 small mt-2 d-block">View →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Stats row 2 -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card purple">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">Tracing Queue</div><div class="stat-number">{{ tracing_queue }}</div></div>
+        <i class="bi bi-search-heart stat-icon"></i>
+      </div>
+      <a href="{% url 'tracing:queue' %}" class="text-white-50 small mt-2 d-block">View →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">Traced (Ready)</div><div class="stat-number">{{ traced_queue }}</div></div>
+        <i class="bi bi-person-check stat-icon"></i>
+      </div>
+      <a href="{% url 'assignments:queue' %}" class="text-white-50 small mt-2 d-block">Assign →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card dark">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">SFTP Today</div><div class="stat-number">{{ sftp_today }}</div></div>
+        <i class="bi bi-hdd-network stat-icon"></i>
+      </div>
+      <a href="{% url 'sftp:log_list' %}" class="text-white-50 small mt-2 d-block">View →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card red">
+      <div class="d-flex justify-content-between">
+        <div><div class="stat-label">Failed Logins (7d)</div><div class="stat-number">{{ failed_logins_week }}</div></div>
+        <i class="bi bi-shield-exclamation stat-icon"></i>
+      </div>
+      <a href="{% url 'audit:list' %}?action=LOGIN_FAILED" class="text-white-50 small mt-2 d-block">Investigate →</a>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Participant status breakdown -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header"><h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart me-1 text-primary"></i>Participant Pipeline</h6></div>
+      <div class="card-body">
+        {% for item in status_breakdown %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="small text-capitalize">{{ item.status }}</span>
+          <span class="fw-bold">{{ item.count }}</span>
+        </div>
+        <div class="progress mb-3" style="height:6px">
+          <div class="progress-bar" style="width:{{ item.count|default:0 }}%"></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent uploads -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-cloud-upload me-1 text-primary"></i>Recent Uploads</h6>
+        <a href="{% url 'uploads:list' %}" class="small text-primary">View all</a>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          {% for b in recent_batches %}
+          <li class="list-group-item py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="small fw-semibold">{{ b.partner.name }}</div>
+                <div class="text-muted" style="font-size:11px">{{ b.original_filename|truncatechars:30 }}</div>
+              </div>
+              <span class="badge bg-{{ b.get_status_badge }}">{{ b.get_status_display }}</span>
+            </div>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-center text-muted small py-3">No uploads yet</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent audit -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-1 text-primary"></i>Recent Activity</h6>
+        <a href="{% url 'audit:list' %}" class="small text-primary">Full audit</a>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          {% for log in recent_audit %}
+          <li class="list-group-item py-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="audit-action">{{ log.action }}</span>
+              <span class="small text-muted">{{ log.user_email|truncatechars:20 }}</span>
+            </div>
+            <div class="text-muted" style="font-size:11px">{{ log.timestamp|timesince }} ago</div>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-center text-muted small py-3">No recent activity</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

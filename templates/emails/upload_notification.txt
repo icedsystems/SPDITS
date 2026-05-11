@@ -1,0 +1,21 @@
+ICED SPDITS — New Upload Requires Approval
+==========================================
+
+A new file upload is waiting for your review.
+
+Partner: {{ batch.partner.name }}
+File: {{ batch.original_filename }}
+Batch ID: {{ batch.batch_id }}
+Source: {{ batch.get_source_display|default:batch.source }}
+Uploaded: {{ batch.created_at }}
+
+Summary:
+- Total Records: {{ batch.total_records }}
+- Valid Records: {{ batch.valid_records }}
+- Invalid Records: {{ batch.invalid_records }}
+- Duplicates: {{ batch.duplicate_records }}
+
+Review this upload: {{ app_url }}/uploads/{{ batch.pk }}/
+
+---
+ICED SPDITS — Automated Notification

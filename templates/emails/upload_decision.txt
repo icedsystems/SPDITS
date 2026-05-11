@@ -1,0 +1,22 @@
+ICED SPDITS — Upload {% if approved %}Approved{% else %}Rejected{% endif %}
+==============================================
+
+Your file upload has been {% if approved %}APPROVED{% else %}REJECTED{% endif %}.
+
+File: {{ batch.original_filename }}
+Batch ID: {{ batch.batch_id }}
+Reviewed by: {{ batch.reviewed_by.get_full_name }}
+Reviewed at: {{ batch.reviewed_at }}
+{% if batch.review_notes %}
+Notes: {{ batch.review_notes }}
+{% endif %}
+{% if approved %}
+Your data is now being pseudocoded and will be available in the system shortly.
+{% else %}
+Please review the notes above and resubmit a corrected file.
+{% endif %}
+
+View details: {{ app_url }}/uploads/{{ batch.pk }}/
+
+---
+ICED SPDITS — Automated Notification

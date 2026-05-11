@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Partners — ICED SPDITS{% endblock %}
+{% block page_title %}Partners{% endblock %}
+{% block nav_partners %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Implementing Partners</h4>
+    <p class="text-muted small">Manage partner organizations</p>
+  </div>
+  <a href="{% url 'accounts:partner_create' %}" class="btn btn-primary"><i class="bi bi-building-add me-1"></i>Add Partner</a>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0 datatable">
+      <thead class="bg-light">
+        <tr><th>Name</th><th>Code</th><th>Contact Email</th><th>SFTP User</th><th>Status</th><th>Created</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for p in partners %}
+        <tr>
+          <td class="fw-semibold">{{ p.name }}</td>
+          <td><code>{{ p.code }}</code></td>
+          <td>{{ p.contact_email }}</td>
+          <td><code>{{ p.sftp_username|default:'—' }}</code></td>
+          <td>{% if p.is_active %}<span class="badge bg-success-subtle text-success">Active</span>{% else %}<span class="badge bg-danger-subtle text-danger">Inactive</span>{% endif %}</td>
+          <td class="text-muted small">{{ p.created_at|date:"d M Y" }}</td>
+          <td><a href="{% url 'accounts:partner_edit' p.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No partners yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

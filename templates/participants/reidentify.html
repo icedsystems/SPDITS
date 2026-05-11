@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Re-Identification — {{ participant.pseudo_code }}{% endblock %}
+{% block page_title %}Secure Re-Identification{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="alert alert-danger py-2 mb-4">
+      <i class="bi bi-shield-exclamation me-2"></i>
+      <strong>CONFIDENTIAL</strong> — This data will be hidden in <strong><span id="reidentify-timer">60</span></strong> seconds.
+      This re-identification has been logged.
+    </div>
+
+    <div class="card border-warning" id="reidentify-box">
+      <div class="card-header bg-warning-subtle">
+        <h6 class="mb-0 fw-bold">
+          <i class="bi bi-person-badge me-2"></i>
+          Direct Identifiers — <span class="pseudocode">{{ participant.pseudo_code }}</span>
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="mb-2 p-2 bg-light rounded small text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          Accessed by <strong>{{ request.user.get_full_name }}</strong> ({{ request.user.display_role }}) &bull;
+          Reason: <em>{{ reason }}</em> &bull; {{ revealed_at|date:"d M Y, H:i:s" }}
+        </div>
+        <table class="table table-bordered mt-3">
+          <tr><th class="text-muted" style="width:40%">Full Name</th><td class="fw-semibold">{{ identifiers.name|default:'—' }}</td></tr>
+          <tr><th class="text-muted">National ID</th><td>{{ identifiers.national_id|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Passport</th><td>{{ identifiers.passport|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Phone</th><td>{{ identifiers.phone|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Alt Phone</th><td>{{ identifiers.alt_phone|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Email</th><td>{{ identifiers.email|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Address</th><td>{{ identifiers.address|default:'—' }}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+      <a href="{% url 'participants:detail' participant.pk %}" class="btn btn-outline-secondary">← Back to Participant</a>
+      <button onclick="window.print()" class="btn btn-outline-dark"><i class="bi bi-printer me-1"></i>Print</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

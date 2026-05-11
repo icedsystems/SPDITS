@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}SFTP Configuration — ICED SPDITS{% endblock %}
+{% block page_title %}SFTP Configuration{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div><h4 class="fw-bold mb-0">SFTP Configuration</h4><p class="text-muted small">Manage partner SFTP credentials and directories</p></div>
+  <a href="{% url 'sftp:config_create' %}" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Add SFTP Config</a>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="bg-light"><tr><th>Partner</th><th>Username</th><th>Inbound Directory</th><th>Active</th><th></th></tr></thead>
+      <tbody>
+        {% for c in configs %}
+        <tr>
+          <td class="fw-semibold">{{ c.partner.name }}</td>
+          <td><code>{{ c.username }}</code></td>
+          <td><code class="small">{{ c.inbound_directory }}</code></td>
+          <td>{% if c.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+          <td><a href="{% url 'sftp:config_edit' c.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No SFTP configurations. <a href="{% url 'sftp:config_create' %}">Add one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

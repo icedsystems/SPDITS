@@ -1,0 +1,23 @@
+ICED SPDITS — You Have Been Invited
+=====================================
+
+You have been invited to join the ICED Secure Partner Data Intake System (SPDITS)
+as a {{ invitation.get_role_display }}.
+
+Invited by: {{ invitation.invited_by.get_full_name }}
+Organization: {{ invitation.organization|default:"ICED" }}
+
+To accept this invitation and create your account, click the link below:
+
+{{ accept_url }}
+
+IMPORTANT:
+- This link expires in {{ expiry_hours }} hour(s)
+- This link can only be used once
+- Only the invited email address ({{ invitation.email }}) can accept
+
+If you did not expect this invitation, please ignore this email.
+
+---
+The International Centre for Evaluation and Development (ICED)
+This is an automated message — please do not reply.

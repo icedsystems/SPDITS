@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Supervisor Dashboard — ICED SPDITS{% endblock %}
+{% block page_title %}Supervisor Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold mb-0">Welcome, {{ user.first_name }}</h4>
+  <p class="text-muted small">Supervisor overview</p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="stat-card"><div class="d-flex justify-content-between"><div><div class="stat-label">My Enumerators</div><div class="stat-number">{{ enumerator_count }}</div></div><i class="bi bi-people stat-icon"></i></div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card orange"><div class="d-flex justify-content-between"><div><div class="stat-label">Active Assignments</div><div class="stat-number">{{ active_assignments }}</div></div><i class="bi bi-person-check stat-icon"></i></div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card green"><div class="d-flex justify-content-between"><div><div class="stat-label">Completed Interviews</div><div class="stat-number">{{ completed_interviews }}</div></div><i class="bi bi-clipboard2-check stat-icon"></i></div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-card purple"><div class="d-flex justify-content-between"><div><div class="stat-label">Pending Interviews</div><div class="stat-number">{{ pending_interviews }}</div></div><i class="bi bi-hourglass-split stat-icon"></i></div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">My Enumerators</h6>
+        <a href="{% url 'assignments:queue' %}" class="btn btn-sm btn-primary"><i class="bi bi-person-plus me-1"></i>Assign</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="bg-light"><tr><th>Name</th><th>Assignments</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for e in my_enumerators %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-circle bg-info d-flex align-items-center justify-content-center text-white" style="width:30px;height:30px;font-size:12px">{{ e.first_name.0|upper }}{{ e.last_name.0|upper }}</div>
+                  <div>
+                    <div class="fw-semibold small">{{ e.get_full_name }}</div>
+                    <div class="text-muted" style="font-size:11px">{{ e.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge bg-primary-subtle text-primary">{{ e.assignment_count }}</span></td>
+              <td>{% if e.is_active %}<span class="badge bg-success-subtle text-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center text-muted py-4">No enumerators assigned to you.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Quick Actions</h6></div>
+      <div class="list-group list-group-flush">
+        <a href="{% url 'assignments:queue' %}" class="list-group-item list-group-item-action py-3"><i class="bi bi-person-check me-2 text-primary"></i>Assign Traced Participants</a>
+        <a href="{% url 'interviews:list' %}" class="list-group-item list-group-item-action py-3"><i class="bi bi-clipboard2-check me-2 text-success"></i>Monitor Interviews</a>
+        <a href="{% url 'tracing:traced_queue' %}" class="list-group-item list-group-item-action py-3"><i class="bi bi-search-heart me-2 text-info"></i>View Traced Queue</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

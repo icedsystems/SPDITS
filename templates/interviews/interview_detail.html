@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Interview — {{ interview.participant.pseudo_code }}{% endblock %}
+{% block page_title %}Interview Detail{% endblock %}
+{% block nav_interviews %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Interview #{{ interview.pk }}</h4>
+    <p class="text-muted small">
+      <span class="pseudocode">{{ interview.participant.pseudo_code }}</span> &bull;
+      <span class="badge bg-{{ interview.get_status_badge }}">{{ interview.get_status_display }}</span>
+    </p>
+  </div>
+  {% if request.user == interview.enumerator or is_admin or is_supervisor %}
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
+    <i class="bi bi-pencil me-1"></i>Update Status
+  </button>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <!-- Status history timeline -->
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Status History</h6></div>
+      <div class="card-body">
+        <div class="timeline">
+          {% for h in status_history %}
+          <div class="timeline-item">
+            <div class="small fw-semibold">{{ h.previous_status|default:'—' }} → {{ h.new_status }}</div>
+            <div class="text-muted small">{{ h.notes|default:'No notes' }}</div>
+            <div class="text-muted small">{{ h.changed_by.get_full_name|default:'System' }} &bull; {{ h.changed_at|date:"d M Y, H:i" }}</div>
+          </div>
+          {% empty %}
+          <p class="text-muted small">No history yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Interview Details</h6></div>
+      <div class="card-body">
+        <table class="table table-borderless table-sm">
+          <tr><th class="text-muted">Participant</th><td><span class="pseudocode">{{ interview.participant.pseudo_code }}</span></td></tr>
+          <tr><th class="text-muted">Enumerator</th><td>{{ interview.enumerator.get_full_name|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Status</th><td><span class="badge bg-{{ interview.get_status_badge }}">{{ interview.get_status_display }}</span></td></tr>
+          <tr><th class="text-muted">Scheduled</th><td>{{ interview.scheduled_date|date:"d M Y"|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Started</th><td>{{ interview.started_at|date:"d M Y, H:i"|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Completed</th><td>{{ interview.completed_at|date:"d M Y, H:i"|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Callback</th><td>{{ interview.callback_date|date:"d M Y"|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Remarks</th><td>{{ interview.remarks|default:'—' }}</td></tr>
+          {% if interview.refusal_reason %}
+          <tr><th class="text-muted text-danger">Refusal</th><td class="text-danger small">{{ interview.refusal_reason }}</td></tr>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'interviews:update' interview.pk %}">
+        {% csrf_token %}
+        <div class="modal-header"><h6 class="modal-title fw-bold">Update Interview Status</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">New Status</label>
+            <select name="status" class="form-select" required>
+              {% for val, label in statuses %}<option value="{{ val }}" {% if interview.status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Remarks</label>
+            <textarea name="remarks" class="form-control" rows="3">{{ interview.remarks }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Callback Date (if needed)</label>
+            <input type="date" name="callback_date" class="form-control" value="{{ interview.callback_date|date:'Y-m-d' }}">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3"><a href="{% url 'interviews:list' %}" class="btn btn-outline-secondary">← Back</a></div>
+{% endblock %}

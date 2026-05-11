@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.header { background: linear-gradient(135deg, #1a2840, #1a3a6b); padding: 30px; text-align: center; }
+.header h1 { color: #fff; margin: 0; font-size: 22px; }
+.header p { color: rgba(255,255,255,0.7); margin: 5px 0 0; font-size: 13px; }
+.body { padding: 30px; }
+.body h2 { color: #1a2840; font-size: 18px; margin-top: 0; }
+.details { background: #f8f9fa; border-radius: 6px; padding: 15px; margin: 20px 0; }
+.details table { width: 100%; border-collapse: collapse; }
+.details td { padding: 5px 0; font-size: 14px; }
+.details td:first-child { color: #666; width: 40%; }
+.btn { display: block; width: fit-content; margin: 25px auto; padding: 14px 30px; background: #1a3a6b; color: #fff !important; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; }
+.warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px 15px; font-size: 13px; color: #664d03; margin-top: 20px; }
+.footer { background: #f8f9fa; padding: 15px 30px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+</style></head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>ICED SPDITS</h1>
+    <p>Secure Partner Data Intake System</p>
+  </div>
+  <div class="body">
+    <h2>You have been invited!</h2>
+    <p>You have been invited to join the ICED SPDITS platform.</p>
+    <div class="details">
+      <table>
+        <tr><td>Role:</td><td><strong>{{ invitation.get_role_display }}</strong></td></tr>
+        <tr><td>Invited by:</td><td>{{ invitation.invited_by.get_full_name }}</td></tr>
+        <tr><td>Organization:</td><td>{{ invitation.organization|default:"ICED" }}</td></tr>
+        <tr><td>Expires:</td><td>{{ invitation.expiry_time|date:"d M Y, H:i" }}</td></tr>
+      </table>
+    </div>
+    <a href="{{ accept_url }}" class="btn">Accept Invitation &amp; Create Account</a>
+    <div class="warning">
+      ⏰ This invitation link expires in <strong>{{ expiry_hours }} hour(s)</strong> and can only be used once by <strong>{{ invitation.email }}</strong>.
+    </div>
+  </div>
+  <div class="footer">
+    The International Centre for Evaluation and Development (ICED)<br>
+    This is an automated message — please do not reply.
+  </div>
+</div>
+</body>
+</html>

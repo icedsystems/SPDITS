@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Audit Log #{{ log.pk }} — ICED SPDITS{% endblock %}
+{% block page_title %}Audit Log Detail{% endblock %}
+{% block nav_audit %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2">
+        <span class="audit-action">{{ log.action }}</span>
+        <h6 class="mb-0 fw-bold">Audit Log #{{ log.pk }}</h6>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless">
+          <tr><th class="text-muted" style="width:30%">Timestamp</th><td>{{ log.timestamp|date:"d M Y, H:i:s" }}</td></tr>
+          <tr><th class="text-muted">User</th><td>{{ log.user_email }} <span class="badge bg-secondary ms-1">{{ log.user_role }}</span></td></tr>
+          <tr><th class="text-muted">Action</th><td><span class="audit-action">{{ log.action }}</span></td></tr>
+          <tr><th class="text-muted">Module</th><td>{{ log.module }}</td></tr>
+          <tr><th class="text-muted">Record ID</th><td>{{ log.record_id|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Description</th><td>{{ log.description|default:'—' }}</td></tr>
+          <tr><th class="text-muted">IP Address</th><td>{{ log.ip_address|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Session ID</th><td><code class="small">{{ log.session_id|default:'—' }}</code></td></tr>
+          <tr><th class="text-muted">User Agent</th><td class="small text-muted">{{ log.user_agent|default:'—' }}</td></tr>
+        </table>
+        {% if log.old_values %}
+        <h6 class="fw-bold mt-3">Previous Values</h6>
+        <pre class="bg-light p-3 rounded small">{{ log.old_values }}</pre>
+        {% endif %}
+        {% if log.new_values %}
+        <h6 class="fw-bold">New Values</h6>
+        <pre class="bg-light p-3 rounded small">{{ log.new_values }}</pre>
+        {% endif %}
+      </div>
+    </div>
+    <div class="mt-3"><a href="{% url 'audit:list' %}" class="btn btn-outline-secondary">← Back to Audit Trail</a></div>
+  </div>
+</div>
+{% endblock %}

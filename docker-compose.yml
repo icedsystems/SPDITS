@@ -1,0 +1,140 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: spdits_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: spdits_db
+      POSTGRES_USER: spdits_user
+      POSTGRES_PASSWORD: spdits_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spdits_user -d spdits_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: spdits_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: spdits_app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - .:/app
+      - media_files:/app/media
+      - static_files:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "8000"
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120 --access-logfile - --error-logfile -
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: spdits_celery_worker
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - .:/app
+      - media_files:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A config.celery worker --loglevel=info --concurrency=4 -Q default,uploads,sftp,notifications
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: spdits_celery_beat
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - .:/app
+      - media_files:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A config.celery beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+  flower:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: spdits_flower
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - redis
+      - celery_worker
+    ports:
+      - "5555:5555"
+    command: celery -A config.celery flower --port=5555
+
+  sftp:
+    image: atmoz/sftp:alpine
+    container_name: spdits_sftp
+    restart: unless-stopped
+    ports:
+      - "2222:22"
+    volumes:
+      - sftp_data:/home/sftpusers
+      - ./docker/sftp/users.conf:/etc/sftp/users.conf:ro
+      - ./docker/sftp/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
+      - ./docker/sftp/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
+    environment:
+      - SFTP_USERS=
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: spdits_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_files:/app/staticfiles:ro
+      - media_files:/app/media:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_files:
+  static_files:
+  sftp_data:

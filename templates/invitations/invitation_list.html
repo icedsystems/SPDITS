@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Invitations — ICED SPDITS{% endblock %}
+{% block page_title %}Invitations{% endblock %}
+{% block nav_invitations %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Invitations</h4>
+    <p class="text-muted small">Manage partner upload invitations</p>
+  </div>
+  <a href="{% url 'invitations:create' %}" class="btn btn-primary"><i class="bi bi-envelope-plus me-1"></i>Send Invitation</a>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0 datatable">
+      <thead class="bg-light">
+        <tr><th>Email</th><th>Organization</th><th>Role</th><th>Invited By</th><th>Status</th><th>Expires</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for inv in invitations %}
+        <tr>
+          <td class="fw-semibold">{{ inv.email }}</td>
+          <td>{{ inv.organization|default:'—' }}</td>
+          <td><span class="badge bg-secondary">{{ inv.get_role_display }}</span></td>
+          <td>{{ inv.invited_by.get_full_name|default:'—' }}</td>
+          <td>
+            {% if inv.status == 'pending' and not inv.is_expired %}<span class="badge bg-warning text-dark">Pending</span>
+            {% elif inv.status == 'accepted' %}<span class="badge bg-success">Accepted</span>
+            {% elif inv.status == 'expired' or inv.is_expired %}<span class="badge bg-secondary">Expired</span>
+            {% elif inv.status == 'revoked' %}<span class="badge bg-danger">Revoked</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ inv.expiry_time|date:"d M Y, H:i" }}</td>
+          <td>
+            {% if inv.status == 'pending' and not inv.is_expired %}
+            <form method="post" action="{% url 'invitations:revoke' inv.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Revoke this invitation?">
+                <i class="bi bi-x-circle"></i>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No invitations sent yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

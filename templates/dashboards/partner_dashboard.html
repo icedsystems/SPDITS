@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Partner Dashboard — ICED SPDITS{% endblock %}
+{% block page_title %}Partner Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold mb-0">Welcome, {{ user.first_name }}</h4>
+  <p class="text-muted small">{{ user.partner.name }}</p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card"><div class="d-flex justify-content-between"><div><div class="stat-label">Total Uploads</div><div class="stat-number">{{ total_uploads }}</div></div><i class="bi bi-cloud-upload stat-icon"></i></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card orange"><div class="d-flex justify-content-between"><div><div class="stat-label">Pending Review</div><div class="stat-number">{{ pending }}</div></div><i class="bi bi-clock stat-icon"></i></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card green"><div class="d-flex justify-content-between"><div><div class="stat-label">Approved</div><div class="stat-number">{{ approved }}</div></div><i class="bi bi-check-circle stat-icon"></i></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card red"><div class="d-flex justify-content-between"><div><div class="stat-label">Rejected</div><div class="stat-number">{{ rejected }}</div></div><i class="bi bi-x-circle stat-icon"></i></div></div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">Recent Uploads</h6>
+        <a href="{% url 'uploads:create' %}" class="btn btn-sm btn-primary"><i class="bi bi-cloud-upload me-1"></i>New Upload</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="bg-light">
+            <tr><th>File</th><th>Records</th><th>Status</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for b in recent_batches %}
+            <tr>
+              <td><i class="bi bi-file-earmark-spreadsheet text-success me-1"></i>{{ b.original_filename|truncatechars:35 }}</td>
+              <td><span class="text-success">{{ b.valid_records }}✓</span> / {{ b.total_records }}</td>
+              <td><span class="badge bg-{{ b.get_status_badge }}">{{ b.get_status_display }}</span></td>
+              <td class="text-muted small">{{ b.created_at|date:"d M Y" }}</td>
+              <td><a href="{% url 'uploads:detail' b.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-4">No uploads yet. <a href="{% url 'uploads:create' %}">Upload your first file</a>.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold">SFTP Access</h6></div>
+      <div class="card-body">
+        <p class="text-muted small">You can also upload files via SFTP:</p>
+        {% if user.partner.sftp_username %}
+        <table class="table table-sm table-borderless">
+          <tr><th class="text-muted small">Host</th><td><code>{{ request.get_host }}</code></td></tr>
+          <tr><th class="text-muted small">Port</th><td><code>2222</code></td></tr>
+          <tr><th class="text-muted small">Username</th><td><code>{{ user.partner.sftp_username }}</code></td></tr>
+          <tr><th class="text-muted small">Directory</th><td><code>{{ user.partner.sftp_directory|default:'uploads/' }}</code></td></tr>
+        </table>
+        {% else %}
+        <p class="text-muted small">SFTP not configured. Contact your administrator.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

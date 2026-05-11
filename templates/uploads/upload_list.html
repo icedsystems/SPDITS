@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Uploads — ICED SPDITS{% endblock %}
+{% block page_title %}File Uploads{% endblock %}
+{% block nav_uploads %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">File Uploads</h4>
+    <p class="text-muted small">Upload and manage participant data files</p>
+  </div>
+  <div class="d-flex gap-2">
+    {% if pending_count %}<a href="{% url 'uploads:pending' %}" class="btn btn-warning"><i class="bi bi-clock-history me-1"></i>Pending ({{ pending_count }})</a>{% endif %}
+    <a href="{% url 'uploads:create' %}" class="btn btn-primary"><i class="bi bi-cloud-upload me-1"></i>New Upload</a>
+  </div>
+</div>
+
+<!-- Filter bar -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="d-flex gap-2 align-items-center flex-wrap">
+      <select name="status" class="form-select form-select-sm" style="width:180px">
+        <option value="">All Statuses</option>
+        {% for val, label in batch_statuses %}<option value="{{ val }}" {% if request.GET.status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
+      <a href="{% url 'uploads:list' %}" class="btn btn-sm btn-outline-secondary">Clear</a>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="bg-light">
+        <tr><th>Batch ID</th><th>Partner</th><th>File</th><th>Source</th><th>Records</th><th>Status</th><th>Uploaded</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for b in batches %}
+        <tr>
+          <td><code class="small">{{ b.batch_id }}</code></td>
+          <td class="fw-semibold">{{ b.partner.name }}</td>
+          <td>
+            <i class="bi bi-file-earmark-spreadsheet text-success me-1"></i>
+            <span class="small">{{ b.original_filename }}</span>
+          </td>
+          <td>
+            {% if b.source == 'sftp' %}<span class="badge bg-info-subtle text-info">SFTP</span>
+            {% else %}<span class="badge bg-primary-subtle text-primary">Web</span>{% endif %}
+          </td>
+          <td>
+            <span class="text-success small">{{ b.valid_records }}✓</span>
+            {% if b.invalid_records %}<span class="text-danger small ms-1">{{ b.invalid_records }}✗</span>{% endif %}
+            {% if b.duplicate_records %}<span class="text-warning small ms-1">{{ b.duplicate_records }}⊘</span>{% endif %}
+            <span class="text-muted small">/ {{ b.total_records }}</span>
+          </td>
+          <td><span class="badge bg-{{ b.get_status_badge }}">{{ b.get_status_display }}</span></td>
+          <td class="text-muted small">{{ b.created_at|date:"d M Y, H:i" }}</td>
+          <td><a href="{% url 'uploads:detail' b.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted py-5">No uploads yet. <a href="{% url 'uploads:create' %}">Upload your first file</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

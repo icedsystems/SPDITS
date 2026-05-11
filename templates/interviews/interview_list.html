@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Interviews — ICED SPDITS{% endblock %}
+{% block page_title %}Interviews{% endblock %}
+{% block nav_interviews %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div><h4 class="fw-bold mb-0">Interviews</h4><p class="text-muted small">Track all interview outcomes</p></div>
+</div>
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="d-flex gap-2">
+      <select name="status" class="form-select form-select-sm" style="width:200px">
+        <option value="">All Statuses</option>
+        {% for val, label in statuses %}<option value="{{ val }}" {% if request.GET.status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
+      <a href="{% url 'interviews:list' %}" class="btn btn-sm btn-outline-secondary">Clear</a>
+    </form>
+  </div>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="bg-light"><tr><th>Pseudocode</th><th>Enumerator</th><th>Status</th><th>Scheduled</th><th>Updated</th><th></th></tr></thead>
+      <tbody>
+        {% for iv in interviews %}
+        <tr>
+          <td><span class="pseudocode">{{ iv.participant.pseudo_code }}</span></td>
+          <td class="small">{{ iv.enumerator.get_full_name|default:'—' }}</td>
+          <td><span class="badge bg-{{ iv.get_status_badge }}">{{ iv.get_status_display }}</span></td>
+          <td class="small text-muted">{{ iv.scheduled_date|date:"d M Y"|default:'—' }}</td>
+          <td class="small text-muted">{{ iv.updated_at|timesince }} ago</td>
+          <td><a href="{% url 'interviews:detail' iv.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No interviews found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'partials/pagination.html' %}
+</div>
+{% endblock %}

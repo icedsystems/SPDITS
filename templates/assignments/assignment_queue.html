@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Assignment Queue — ICED SPDITS{% endblock %}
+{% block page_title %}Assignment Queue{% endblock %}
+{% block nav_assignments %}active{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold mb-0">Assign Participants</h4>
+  <p class="text-muted small">Select traced participants and assign to an enumerator</p>
+</div>
+
+<form method="post" action="{% url 'assignments:bulk_assign' %}" id="assign-form">
+  {% csrf_token %}
+  <!-- Bulk action bar -->
+  <div class="card bg-primary text-white mb-3 d-none" id="bulk-action-bar" style="display:none!important">
+    <div class="card-body py-2 d-flex align-items-center gap-3">
+      <span class="fw-semibold"><span id="selected-count">0</span> selected</span>
+      <select name="enumerator_id" class="form-select form-select-sm" style="width:250px" required>
+        <option value="">Select Enumerator</option>
+        {% for e in enumerators %}<option value="{{ e.pk }}">{{ e.get_full_name }}</option>{% endfor %}
+      </select>
+      <input type="text" name="notes" class="form-control form-control-sm" placeholder="Notes…" style="width:200px">
+      <button type="submit" class="btn btn-warning btn-sm fw-bold">Assign Selected</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th><input type="checkbox" class="form-check-input" id="select-all"></th>
+            <th>Pseudocode</th><th>Partner</th><th>County</th><th>Gender</th><th>Traced</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in participants %}
+          <tr>
+            <td><input type="checkbox" name="participant_ids" value="{{ p.pk }}" class="form-check-input row-check"></td>
+            <td><span class="pseudocode">{{ p.pseudo_code }}</span></td>
+            <td class="small">{{ p.partner.name }}</td>
+            <td class="small text-muted">{{ p.data.county|default:'—' }}</td>
+            <td class="small text-muted">{{ p.data.gender|default:'—' }}</td>
+            <td class="small text-muted">{{ p.updated_at|date:"d M Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center text-muted py-5">No traced participants ready for assignment.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Show bulk bar when items selected
+document.getElementById('select-all').addEventListener('change', function(){
+  document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+  toggleBar();
+});
+document.querySelectorAll('.row-check').forEach(cb => cb.addEventListener('change', toggleBar));
+function toggleBar(){
+  const n = document.querySelectorAll('.row-check:checked').length;
+  const bar = document.getElementById('bulk-action-bar');
+  bar.classList.toggle('d-none', n === 0);
+  document.getElementById('selected-count').textContent = n;
+}
+</script>
+{% endblock %}

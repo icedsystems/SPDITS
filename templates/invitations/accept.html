@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Accept Invitation — ICED SPDITS{% endblock %}
+{% block unauthenticated_content %}
+<div class="login-wrapper d-flex align-items-center justify-content-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6 col-lg-5">
+        <div class="login-card card shadow-lg">
+          <div class="card-body p-0">
+            <div class="text-center p-4 pb-3" style="background: linear-gradient(135deg,#1a2840 0%,#1a3a6b 100%);">
+              <img src="/static/img/logo.png" alt="ICED" height="50" class="mb-2">
+              <h5 class="text-white fw-bold mb-0">Create Your Account</h5>
+              <p class="text-white-50 small">Invited as <strong>{{ invitation.get_role_display }}</strong></p>
+            </div>
+            <div class="p-4">
+              <div class="alert alert-success py-2 small mb-3">
+                <i class="bi bi-envelope-check me-1"></i>Invitation for <strong>{{ invitation.email }}</strong>
+              </div>
+              <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                  <label class="form-label fw-semibold small">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">
+                  <i class="bi bi-person-check me-2"></i>Create Account
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — ICED SPDITS{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card text-center p-4">
+      <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold mx-auto mb-3"
+           style="width:80px;height:80px;font-size:2rem">
+        {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+      </div>
+      <h5 class="fw-bold">{{ user.get_full_name }}</h5>
+      <p class="text-muted small">{{ user.email }}</p>
+      <span class="badge bg-{{ user.get_role_badge_color }} px-3 py-2">{{ user.display_role }}</span>
+      {% if user.partner %}
+      <p class="text-muted small mt-2"><i class="bi bi-building me-1"></i>{{ user.partner.name }}</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Account Details</h6></div>
+      <div class="card-body">
+        <table class="table table-borderless">
+          <tr><th class="text-muted" style="width:35%">Full Name</th><td>{{ user.get_full_name }}</td></tr>
+          <tr><th class="text-muted">Email</th><td>{{ user.email }}</td></tr>
+          <tr><th class="text-muted">Username</th><td>{{ user.username }}</td></tr>
+          <tr><th class="text-muted">Role</th><td><span class="badge bg-{{ user.get_role_badge_color }}">{{ user.display_role }}</span></td></tr>
+          <tr><th class="text-muted">Partner</th><td>{{ user.partner|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Phone</th><td>{{ user.phone|default:'—' }}</td></tr>
+          <tr><th class="text-muted">Account Created</th><td>{{ user.created_at|date:"d M Y" }}</td></tr>
+          <tr><th class="text-muted">Last Login</th><td>{{ user.last_login|date:"d M Y, H:i"|default:'—' }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

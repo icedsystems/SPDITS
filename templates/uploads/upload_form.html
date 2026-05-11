@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}New Upload — ICED SPDITS{% endblock %}
+{% block page_title %}New File Upload{% endblock %}
+{% block nav_uploads %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold"><i class="bi bi-cloud-upload me-2 text-primary"></i>Upload Participant Data File</h6></div>
+      <div class="card-body">
+        <div class="alert alert-info py-2 small mb-4">
+          <i class="bi bi-info-circle me-1"></i>
+          Accepted formats: <strong>CSV, XLS, XLSX</strong>. Maximum file size: <strong>100 MB</strong>.
+          Files will be processed automatically after upload.
+        </div>
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Partner</label>
+            {{ form.partner }}
+            {% if form.partner.errors %}<div class="text-danger small">{{ form.partner.errors }}</div>{% endif %}
+          </div>
+          <!-- Drag & Drop Zone -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">File</label>
+            <div class="upload-zone" id="upload-zone">
+              <i class="bi bi-cloud-upload d-block mb-2"></i>
+              <p class="mb-1 fw-semibold">Drag &amp; drop your file here</p>
+              <p class="text-muted small mb-2">or click to browse</p>
+              <span id="file-label" class="badge bg-secondary">No file selected</span>
+              {{ form.file }}
+            </div>
+            {% if form.file.errors %}<div class="text-danger small mt-1">{{ form.file.errors }}</div>{% endif %}
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-cloud-upload me-2"></i>Upload &amp; Process
+            </button>
+            <a href="{% url 'uploads:list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="card mt-3">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3"><i class="bi bi-question-circle me-1 text-info"></i>File Format Requirements</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <strong class="small text-success">Required columns:</strong>
+            <ul class="small text-muted mt-1">
+              <li>name (full name)</li><li>gender</li><li>county</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <strong class="small text-primary">Optional columns:</strong>
+            <ul class="small text-muted mt-1">
+              <li>national_id, passport</li>
+              <li>phone, alt_phone, email</li>
+              <li>age, birth_year, sub_county, ward</li>
+              <li>address (will be encrypted)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>#id_file { display: none; }</style>
+{% endblock %}

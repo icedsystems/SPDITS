@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Compliance Dashboard — ICED SPDITS{% endblock %}
+{% block page_title %}Compliance Dashboard{% endblock %}
+{% block nav_compliance %}active{% endblock %}
+
+{% block content %}
+<div class="mb-4"><h4 class="fw-bold mb-0">Compliance Dashboard</h4><p class="text-muted small">Data privacy and re-identification oversight</p></div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4"><div class="stat-card orange"><div class="d-flex justify-content-between"><div><div class="stat-label">Re-IDs (7 days)</div><div class="stat-number">{{ reidentification_count_week }}</div></div><i class="bi bi-eye stat-icon"></i></div></div></div>
+  {% for item in participant_status_counts %}
+  <div class="col-6 col-md-2"><div class="stat-card dark"><div><div class="stat-label">{{ item.status|title }}</div><div class="stat-number">{{ item.count }}</div></div></div></div>
+  {% endfor %}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold text-warning"><i class="bi bi-eye me-1"></i>Recent Re-Identifications</h6></div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0 table-sm">
+          <thead class="bg-light"><tr><th>Pseudocode</th><th>Requested By</th><th>Reason</th><th>IP</th><th>Time</th></tr></thead>
+          <tbody>
+            {% for log in reidentification_logs %}
+            <tr>
+              <td><span class="pseudocode">{{ log.participant.pseudo_code }}</span></td>
+              <td class="small">{{ log.requested_by.get_full_name }}</td>
+              <td class="small text-muted">{{ log.reason|truncatechars:40 }}</td>
+              <td class="small text-muted">{{ log.ip_address|default:'—' }}</td>
+              <td class="small text-muted">{{ log.viewed_at|timesince }} ago</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-3">No re-identifications recorded.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Recent Batches</h6></div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          {% for b in recent_batches %}
+          <li class="list-group-item py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div><div class="small fw-semibold">{{ b.partner.name }}</div><div class="text-muted small">{{ b.original_filename|truncatechars:30 }}</div></div>
+              <span class="badge bg-{{ b.get_status_badge }}">{{ b.get_status_display }}</span>
+            </div>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-center text-muted small py-3">No batches yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Pending Approvals — ICED SPDITS{% endblock %}
+{% block page_title %}Pending Approvals{% endblock %}
+{% block nav_uploads %}active{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold mb-0">Pending Approvals</h4>
+  <p class="text-muted small">Upload batches awaiting your review</p>
+</div>
+{% for b in batches %}
+<div class="card mb-3 border-warning">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h6 class="fw-bold mb-1">{{ b.batch_id }}</h6>
+        <p class="text-muted small mb-2">{{ b.partner.name }} &bull; {{ b.original_filename }} &bull; Uploaded {{ b.created_at|timesince }} ago</p>
+        <div class="d-flex gap-3">
+          <span class="small"><span class="text-success fw-bold">{{ b.valid_records }}</span> valid</span>
+          <span class="small"><span class="text-danger fw-bold">{{ b.invalid_records }}</span> invalid</span>
+          <span class="small"><span class="text-warning fw-bold">{{ b.duplicate_records }}</span> duplicates</span>
+          <span class="small text-muted">{{ b.total_records }} total</span>
+        </div>
+      </div>
+      <a href="{% url 'uploads:detail' b.pk %}" class="btn btn-warning">Review <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-check-circle display-4"></i>
+  <p class="mt-3">No pending approvals. You're all caught up!</p>
+</div>
+{% endfor %}
+{% endblock %}

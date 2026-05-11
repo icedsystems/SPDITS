@@ -1,0 +1,12 @@
+<div class="col">
+  <div class="stat-card {{ color|default:'' }}">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <div class="stat-label">{{ label }}</div>
+        <div class="stat-number">{{ value }}</div>
+        {% if sub %}<div class="small mt-1 opacity-75">{{ sub }}</div>{% endif %}
+      </div>
+      <i class="bi {{ icon }} stat-icon"></i>
+    </div>
+  </div>
+</div>

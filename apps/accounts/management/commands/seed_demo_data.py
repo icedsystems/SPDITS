@@ -48,10 +48,10 @@ class Command(BaseCommand):
         admin = User.objects.filter(role=Role.SYSTEM_ADMIN).first()
         if not admin:
             admin = User.objects.create_superuser(
-                username='admin', email='admin@iced.org', password='spdits@2024!',
+                username='pomboi', email='pomboi@iced-eval.org', password='spdits@2024!',
                 first_name='System', last_name='Admin', role=Role.SYSTEM_ADMIN
             )
-            self.stdout.write('  Admin created: admin@iced.org / spdits@2024!')
+            self.stdout.write('  Admin created: pomboi@iced-eval.org / spdits@2024!')
 
         partner_users = []
         for i, partner in enumerate(partners):

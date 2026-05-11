@@ -28,8 +28,6 @@
           <td class="text-muted small">{{ p.created_at|date:"d M Y" }}</td>
           <td><a href="{% url 'accounts:partner_edit' p.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a></td>
         </tr>
-        {% empty %}
-        <tr><td colspan="7" class="text-center text-muted py-4">No partners yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>

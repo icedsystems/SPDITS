@@ -44,14 +44,21 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(f'  Partner: {p.name}')
 
+        DEMO_PASSWORD = 'spdits@2024!'
+
+        def ensure_password(user):
+            user.set_password(DEMO_PASSWORD)
+            user.save(update_fields=['password'])
+
         # --- Users ---
         admin = User.objects.filter(role=Role.SYSTEM_ADMIN).first()
         if not admin:
             admin = User.objects.create_superuser(
-                username='pomboi', email='pomboi@iced-eval.org', password='spdits@2024!',
+                username='pomboi', email='pomboi@iced-eval.org', password=DEMO_PASSWORD,
                 first_name='System', last_name='Admin', role=Role.SYSTEM_ADMIN
             )
             self.stdout.write('  Admin created: pomboi@iced-eval.org / spdits@2024!')
+        ensure_password(admin)
 
         partner_users = []
         for i, partner in enumerate(partners):
@@ -62,7 +69,7 @@ class Command(BaseCommand):
                     role=Role.IMPLEMENTING_PARTNER, partner=partner, is_active=True
                 )
             )
-            if _: pu.set_password('spdits@2024!'); pu.save()
+            ensure_password(pu)
             partner_users.append(pu)
 
         supervisor, _ = User.objects.get_or_create(
@@ -70,7 +77,7 @@ class Command(BaseCommand):
             defaults=dict(username='supervisor', first_name='Sarah', last_name='Kamau',
                           role=Role.SUPERVISOR, is_active=True)
         )
-        if _: supervisor.set_password('spdits@2024!'); supervisor.save()
+        ensure_password(supervisor)
 
         enumerators = []
         for i in range(3):
@@ -79,7 +86,7 @@ class Command(BaseCommand):
                 defaults=dict(username=f'enumerator{i+1}', first_name=f'Enum', last_name=f'{i+1}',
                               role=Role.ENUMERATOR, supervisor=supervisor, is_active=True)
             )
-            if _: e.set_password('spdits@2024!'); e.save()
+            ensure_password(e)
             enumerators.append(e)
 
         tracer, _ = User.objects.get_or_create(
@@ -87,14 +94,14 @@ class Command(BaseCommand):
             defaults=dict(username='tracer1', first_name='Tom', last_name='Ochieng',
                           role=Role.TRACER, is_active=True)
         )
-        if _: tracer.set_password('spdits@2024!'); tracer.save()
+        ensure_password(tracer)
 
         compliance, _ = User.objects.get_or_create(
             email='compliance@iced.org',
             defaults=dict(username='compliance1', first_name='Carol', last_name='Mutua',
                           role=Role.COMPLIANCE_OFFICER, is_active=True)
         )
-        if _: compliance.set_password('spdits@2024!'); compliance.save()
+        ensure_password(compliance)
 
         # --- Upload Batch ---
         partner = partners[0]

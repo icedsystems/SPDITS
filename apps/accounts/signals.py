@@ -25,6 +25,7 @@ def on_user_login(sender, request, user, **kwargs):
 @receiver(user_logged_out)
 def on_user_logout(sender, request, user, **kwargs):
     from apps.audit.utils import log_action
+    from .models import UserSession
     if user:
         UserSession.objects.filter(
             user=user,

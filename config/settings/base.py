@@ -147,7 +147,7 @@ CELERY_TASK_TIME_LIMIT = 3600
 
 # Email — Microsoft Graph API (client credentials, no SMTP)
 EMAIL_BACKEND = 'config.graph_email_backend.GraphEmailBackend'
-GRAPH_MAIL_SENDER = env('GRAPH_MAIL_SENDER', default='')
+GRAPH_MAIL_SENDER = env('GRAPH_MAIL_SENDER', default='info@iced-eval.org')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ICED SPDITS <noreply@iced-eval.org>')
 ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@iced-eval.org')
 

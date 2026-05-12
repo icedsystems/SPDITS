@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Email Notification Settings — ICED SPDITS{% endblock %}
+{% block page_title %}Email Notification Settings{% endblock %}
+{% block nav_email_config %}active{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex align-items-center justify-content-between">
+  <div>
+    <h4 class="fw-bold mb-1"><i class="bi bi-envelope-gear me-2"></i>Email Notification Settings</h4>
+    <p class="text-muted small mb-0">Configure the Microsoft 365 account used to send all system notifications.</p>
+  </div>
+  {% if config.is_configured %}
+  <span class="badge bg-success px-3 py-2 fs-6"><i class="bi bi-check-circle me-1"></i>Configured</span>
+  {% else %}
+  <span class="badge bg-warning text-dark px-3 py-2 fs-6"><i class="bi bi-exclamation-circle me-1"></i>Not Configured</span>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+  <!-- Credentials card -->
+  <div class="col-12 col-xl-7">
+    <div class="card">
+      <div class="card-body p-4">
+        <h5 class="fw-bold mb-1">Microsoft Graph / Azure AD Credentials</h5>
+        <p class="text-muted small mb-4">
+          Create an App Registration in Azure Active Directory with the
+          <code>Mail.Send</code> application permission, then enter the details below.
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="save">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Azure Tenant ID</label>
+            <input type="text" name="tenant_id" class="form-control"
+                   value="{{ config.tenant_id }}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Application (Client) ID</label>
+            <input type="text" name="client_id" class="form-control"
+                   value="{{ config.client_id }}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Client Secret</label>
+            <div class="input-group">
+              <input type="password" name="client_secret" class="form-control" id="secret-input"
+                     placeholder="{% if config.has_secret %}Enter new value to replace{% else %}Enter client secret{% endif %}">
+              <button type="button" class="btn btn-outline-secondary" id="toggle-secret"
+                      onclick="toggleSecret()">
+                <i class="bi bi-eye" id="secret-eye"></i>
+              </button>
+            </div>
+            {% if config.has_secret %}
+            <div class="form-text text-muted">A secret is already saved. Enter a new value only if you want to replace it.</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold small">Sender Email Address</label>
+            <input type="email" name="sender_email" class="form-control"
+                   value="{{ config.sender_email }}" placeholder="info@iced-eval.org">
+            <div class="form-text text-muted">Must be a licensed mailbox in your Microsoft 365 tenant.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 fw-semibold py-2">
+            <i class="bi bi-floppy me-2"></i>Save Settings
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test email + info card -->
+  <div class="col-12 col-xl-5">
+    <!-- Test email -->
+    <div class="card mb-4">
+      <div class="card-body p-4">
+        <h5 class="fw-bold mb-1">Send a Test Email</h5>
+        <p class="text-muted small mb-3">Verify the configuration is working by sending a test message.</p>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="test">
+          <div class="input-group">
+            <input type="email" name="test_recipient" class="form-control"
+                   placeholder="recipient@example.com" required
+                   {% if not config.is_configured %}disabled title="Save credentials first"{% endif %}>
+            <button type="submit" class="btn btn-{% if config.is_configured %}teal{% else %}secondary{% endif %} fw-semibold"
+                    {% if not config.is_configured %}disabled{% endif %}>
+              <i class="bi bi-send me-1"></i> Send Test
+            </button>
+          </div>
+          {% if not config.is_configured %}
+          <div class="form-text text-warning mt-1"><i class="bi bi-exclamation-triangle me-1"></i>Save valid credentials first.</div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+
+    <!-- How emails are used -->
+    <div class="card border-0" style="background:#f8f9fa;">
+      <div class="card-body p-4">
+        <h6 class="fw-bold mb-2"><i class="bi bi-info-circle text-primary me-2"></i>When emails are sent</h6>
+        <ul class="small text-muted mb-0 ps-3">
+          <li class="mb-1">User invitations (30-minute set-password link)</li>
+          <li class="mb-1">Upload approval / rejection notices to partners</li>
+          <li class="mb-1">New upload alerts to administrators</li>
+          <li class="mb-1">Assignment CSV download links to enumerators</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleSecret() {
+  const input = document.getElementById('secret-input');
+  const icon  = document.getElementById('secret-eye');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye';
+  }
+}
+</script>
+{% endblock %}

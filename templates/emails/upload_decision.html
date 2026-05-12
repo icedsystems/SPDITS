@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.header { background: linear-gradient(135deg, #1a2840, #1a3a6b); padding: 30px; text-align: center; }
+.header h1 { color: #fff; margin: 0; font-size: 22px; }
+.header p { color: rgba(255,255,255,0.7); margin: 5px 0 0; font-size: 13px; }
+.status-approved { background: #d1e7dd; border-bottom: 3px solid #198754; padding: 18px 30px; }
+.status-rejected { background: #f8d7da; border-bottom: 3px solid #dc3545; padding: 18px 30px; }
+.status-approved h2 { margin: 0; font-size: 18px; color: #0f5132; }
+.status-rejected h2 { margin: 0; font-size: 18px; color: #842029; }
+.status-approved p, .status-rejected p { margin: 5px 0 0; font-size: 13px; }
+.body { padding: 30px; }
+.details { background: #f8f9fa; border-radius: 6px; padding: 15px; margin: 20px 0; }
+.details table { width: 100%; border-collapse: collapse; }
+.details td { padding: 6px 0; font-size: 14px; border-bottom: 1px solid #eee; }
+.details tr:last-child td { border-bottom: none; }
+.details td:first-child { color: #666; width: 40%; font-weight: 600; }
+.notes-box { border-left: 4px solid #ffc107; background: #fffdf0; padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 16px 0; font-size: 14px; }
+.notes-box strong { display: block; margin-bottom: 4px; color: #664d03; }
+.btn-approved { display: block; width: fit-content; margin: 25px auto; padding: 14px 30px; background: #198754; color: #fff !important; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; }
+.btn-rejected { display: block; width: fit-content; margin: 25px auto; padding: 14px 30px; background: #dc3545; color: #fff !important; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; }
+.info-box { background: #d1ecf1; border-radius: 6px; padding: 12px 16px; font-size: 13px; color: #0c5460; margin-top: 16px; }
+.footer { background: #f8f9fa; padding: 15px 30px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+</style></head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>ICED SPDITS</h1>
+    <p>Secure Partner Data Intake System</p>
+  </div>
+
+  {% if approved %}
+  <div class="status-approved">
+    <h2>✓ Upload Approved</h2>
+    <p>Your data file has been reviewed and approved for processing.</p>
+  </div>
+  {% else %}
+  <div class="status-rejected">
+    <h2>✗ Upload Rejected</h2>
+    <p>Your data file could not be accepted. Please review the notes below and resubmit.</p>
+  </div>
+  {% endif %}
+
+  <div class="body">
+    <div class="details">
+      <table>
+        <tr><td>File</td><td><strong>{{ batch.original_filename }}</strong></td></tr>
+        <tr><td>Batch ID</td><td><code>{{ batch.batch_id }}</code></td></tr>
+        <tr><td>Reviewed By</td><td>{{ batch.reviewed_by.get_full_name }}</td></tr>
+        <tr><td>Reviewed At</td><td>{{ batch.reviewed_at|date:"d M Y, H:i" }} EAT</td></tr>
+      </table>
+    </div>
+
+    {% if batch.review_notes %}
+    <div class="notes-box">
+      <strong>Reviewer Notes:</strong>
+      {{ batch.review_notes }}
+    </div>
+    {% endif %}
+
+    {% if approved %}
+    <div class="info-box">
+      ℹ️ Your data is now being pseudocoded and will be available in the system shortly.
+      Participant reference numbers (PSN) will be assigned automatically.
+    </div>
+    <a href="{{ app_url }}/uploads/{{ batch.pk }}/" class="btn-approved">View Approved Batch</a>
+    {% else %}
+    <div class="info-box">
+      ℹ️ Please correct the issues noted above and upload a new file.
+      If you have questions, contact your ICED focal point.
+    </div>
+    <a href="{{ app_url }}/uploads/{{ batch.pk }}/" class="btn-rejected">View Batch Details</a>
+    {% endif %}
+  </div>
+  <div class="footer">
+    The International Centre for Evaluation and Development (ICED)<br>
+    This is an automated message — please do not reply.
+  </div>
+</div>
+</body>
+</html>

@@ -1,15 +1,34 @@
 import logging
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.views import View
 from django.views.generic import ListView, DetailView
 
 from apps.audit.utils import log_action
+from apps.assignments.models import Assignment, AssignmentStatus
 from apps.participants.models import Participant, ParticipantStatus
 from .models import Interview, InterviewStatus, InterviewStatusHistory
 
 logger = logging.getLogger(__name__)
+
+
+def _complete_assignment(assignment):
+    """Mark an assignment as completed, handling the case where a completed
+    assignment already exists for this participant+enumerator combination
+    (e.g. after a re-assignment following a previous completion)."""
+    try:
+        with transaction.atomic():
+            assignment.status = AssignmentStatus.COMPLETED
+            assignment.completed_at = timezone.now()
+            assignment.save(update_fields=['status', 'completed_at'])
+    except IntegrityError:
+        Assignment.objects.filter(pk=assignment.pk).update(
+            status=AssignmentStatus.COMPLETED,
+            completed_at=timezone.now(),
+        )
 
 
 class InterviewListView(LoginRequiredMixin, ListView):
@@ -172,17 +191,12 @@ class QuickInterviewUpdateView(LoginRequiredMixin, View):
         if callback_date:
             interview.callback_date = callback_date
         if new_status == InterviewStatus.COMPLETED:
-            from django.utils import timezone
             interview.completed_at = timezone.now()
             interview.participant.status = ParticipantStatus.INTERVIEWED
             interview.participant.save(update_fields=['status'])
-            assignment.status = AssignmentStatus.COMPLETED
-            assignment.completed_at = timezone.now()
-            assignment.save(update_fields=['status', 'completed_at'])
+            _complete_assignment(assignment)
         elif new_status in (InterviewStatus.REFUSED, InterviewStatus.UNREACHABLE):
-            assignment.status = AssignmentStatus.COMPLETED
-            assignment.completed_at = timezone.now()
-            assignment.save(update_fields=['status', 'completed_at'])
+            _complete_assignment(assignment)
 
         interview.save()
 

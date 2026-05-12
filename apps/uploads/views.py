@@ -147,11 +147,17 @@ class UploadDownloadView(LoginRequiredMixin, View):
             return redirect('uploads:detail', pk=pk)
 
         if not batch.file:
-            raise Http404('No file attached to this batch.')
+            messages.error(request, 'No file is attached to this batch.')
+            return redirect('uploads:detail', pk=pk)
 
         file_path = batch.file.path
         if not os.path.exists(file_path):
-            raise Http404('File not found on disk.')
+            messages.error(
+                request,
+                f'The original file "{batch.original_filename}" is no longer available on disk. '
+                'It may have been removed during a server migration. Please re-upload the file.'
+            )
+            return redirect('uploads:detail', pk=pk)
 
         log_action(request, 'DOWNLOAD_UPLOAD', 'uploads', batch.pk,
                    description=f'Downloaded original file {batch.original_filename} from batch {batch.batch_id}')

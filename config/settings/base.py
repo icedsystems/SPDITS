@@ -145,15 +145,11 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 3600
 
-# Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST', default='localhost')
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ICED SPDITS <noreply@iced.org>')
-ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@iced.org')
+# Email — Microsoft Graph API (client credentials, no SMTP)
+EMAIL_BACKEND = 'config.graph_email_backend.GraphEmailBackend'
+GRAPH_MAIL_SENDER = env('GRAPH_MAIL_SENDER', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ICED SPDITS <noreply@iced-eval.org>')
+ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@iced-eval.org')
 
 # Microsoft Azure OAuth
 AZURE_AD_CLIENT_ID = env('AZURE_AD_CLIENT_ID', default='')

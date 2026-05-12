@@ -36,12 +36,19 @@
   border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 
+.sidebar-logo-wrap {
+  display: inline-block;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-bottom: 6px;
+}
+
 .sidebar-logo {
-  max-width: 140px;
+  max-width: 130px;
   width: 100%;
   height: auto;
-  filter: brightness(0) invert(1);
-  opacity: 0.92;
+  display: block;
 }
 
 .list-group-item-action {

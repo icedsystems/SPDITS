@@ -56,7 +56,12 @@
           </td>
           <td><span class="badge bg-{{ b.get_status_badge }}">{{ b.get_status_display }}</span></td>
           <td class="text-muted small">{{ b.created_at|date:"d M Y, H:i" }}</td>
-          <td><a href="{% url 'uploads:detail' b.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+          <td class="d-flex gap-1">
+            <a href="{% url 'uploads:detail' b.pk %}" class="btn btn-sm btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+            {% if request.user.is_admin or request.user.is_supervisor or request.user.is_partner %}
+            <a href="{% url 'uploads:download' b.pk %}" class="btn btn-sm btn-outline-success" title="Download original file"><i class="bi bi-download"></i></a>
+            {% endif %}
+          </td>
         </tr>
         {% empty %}
         <tr><td colspan="8" class="text-center text-muted py-5">No uploads yet. <a href="{% url 'uploads:create' %}">Upload your first file</a>.</td></tr>

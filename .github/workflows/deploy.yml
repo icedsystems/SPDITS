@@ -1,0 +1,36 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: SSH deploy to ea.data.iced-eval.org
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            cd /home/ipo/spdits
+
+            echo "==> Pulling latest code..."
+            git pull origin main
+
+            echo "==> Running migrations..."
+            docker compose exec -T app python manage.py migrate --noinput
+
+            echo "==> Collecting static files..."
+            docker compose exec -T app python manage.py collectstatic --noinput --clear 2>/dev/null || true
+
+            echo "==> Restarting app and worker..."
+            docker compose restart app worker
+
+            echo "==> Deploy complete."

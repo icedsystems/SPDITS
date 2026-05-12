@@ -1,7 +1,9 @@
 import hashlib
 import logging
+import os
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import FileResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, DetailView
@@ -118,3 +120,32 @@ class UploadPendingView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return UploadBatch.objects.filter(status=BatchStatus.PENDING_APPROVAL).select_related('partner', 'uploaded_by')
+
+
+class UploadDownloadView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        batch = get_object_or_404(UploadBatch, pk=pk)
+        user = request.user
+
+        # Permission: admin, supervisor, or the partner who owns the batch
+        if user.is_partner():
+            if not user.partner or user.partner != batch.partner:
+                messages.error(request, 'You do not have permission to download this file.')
+                return redirect('uploads:detail', pk=pk)
+        elif not (user.is_admin() or user.is_supervisor()):
+            messages.error(request, 'You do not have permission to download this file.')
+            return redirect('uploads:detail', pk=pk)
+
+        if not batch.file:
+            raise Http404('No file attached to this batch.')
+
+        file_path = batch.file.path
+        if not os.path.exists(file_path):
+            raise Http404('File not found on disk.')
+
+        log_action(request, 'DOWNLOAD_UPLOAD', 'uploads', batch.pk,
+                   description=f'Downloaded original file {batch.original_filename} from batch {batch.batch_id}')
+
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+        response['Content-Disposition'] = f'attachment; filename="{batch.original_filename}"'
+        return response

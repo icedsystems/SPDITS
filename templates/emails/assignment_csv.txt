@@ -1,0 +1,23 @@
+ICED SPDITS — New Assignment
+
+Dear {{ enumerator.get_full_name }},
+
+You have been assigned {{ participant_count }} participant(s) for field interviews.
+
+A secure CSV file with full participant details is available for download:
+
+  {{ download_url }}
+
+Assignment details:
+  Assigned by:   {{ assigned_by }}
+  Participants:  {{ participant_count }}
+  Link expires:  {{ expires_at|date:"d M Y, H:i" }} EAT
+
+IMPORTANT: This link expires in 30 minutes. Download the file immediately.
+
+CONFIDENTIAL: This file contains personal identifiers. Do not share, forward,
+or store it on unsecured devices. Handle in accordance with ICED data protection policy.
+
+---
+The International Centre for Evaluation and Development (ICED)
+This is an automated message — please do not reply.

@@ -230,8 +230,33 @@ class MyAssignmentsView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Assignment.objects.filter(
-            enumerator=self.request.user, status=AssignmentStatus.ACTIVE
-        ).select_related('participant', 'participant__partner')
+            enumerator=self.request.user,
+        ).select_related('participant', 'participant__partner').prefetch_related('interview')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        from apps.interviews.models import InterviewStatus
+        badge_map = {
+            InterviewStatus.PENDING: 'secondary',
+            InterviewStatus.ASSIGNED: 'primary',
+            InterviewStatus.IN_PROGRESS: 'warning',
+            InterviewStatus.COMPLETED: 'success',
+            InterviewStatus.REFUSED: 'danger',
+            InterviewStatus.UNREACHABLE: 'dark',
+            InterviewStatus.CALLBACK_REQUIRED: 'info',
+        }
+        label_map = dict(InterviewStatus.choices)
+        for a in ctx['assignments']:
+            try:
+                iv = a.interview
+                a.interview_status = iv.status
+                a.interview_badge = badge_map.get(iv.status, 'secondary')
+                a.interview_status_display = label_map.get(iv.status, iv.status)
+            except Exception:
+                a.interview_status = None
+                a.interview_badge = 'secondary'
+                a.interview_status_display = 'Not Started'
+        return ctx
 
 
 class AssignmentListView(LoginRequiredMixin, ListView):

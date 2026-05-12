@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <h4 class="fw-bold mb-0">Invitations</h4>
-    <p class="text-muted small">Manage partner upload invitations</p>
+    <p class="text-muted small">Manage user invitations — links expire after 30 minutes</p>
   </div>
   <a href="{% url 'invitations:create' %}" class="btn btn-primary"><i class="bi bi-envelope-plus me-1"></i>Send Invitation</a>
 </div>
@@ -15,7 +15,7 @@
   <div class="card-body p-0">
     <table class="table table-hover mb-0 datatable">
       <thead class="bg-light">
-        <tr><th>Email</th><th>Organization</th><th>Role</th><th>Invited By</th><th>Status</th><th>Expires</th><th></th></tr>
+        <tr><th>Email</th><th>Organization</th><th>Role</th><th>Invited By</th><th>Status</th><th>Expires</th><th style="width:120px"></th></tr>
       </thead>
       <tbody>
         {% for inv in invitations %}
@@ -25,24 +25,41 @@
           <td><span class="badge bg-secondary">{{ inv.get_role_display }}</span></td>
           <td>{{ inv.invited_by.get_full_name|default:'—' }}</td>
           <td>
-            {% if inv.status == 'pending' and not inv.is_expired %}<span class="badge bg-warning text-dark">Pending</span>
-            {% elif inv.status == 'accepted' %}<span class="badge bg-success">Accepted</span>
-            {% elif inv.status == 'expired' or inv.is_expired %}<span class="badge bg-secondary">Expired</span>
-            {% elif inv.status == 'revoked' %}<span class="badge bg-danger">Revoked</span>
+            {% if inv.status == 'accepted' %}
+              <span class="badge bg-success">Accepted</span>
+            {% elif inv.status == 'revoked' %}
+              <span class="badge bg-danger">Revoked</span>
+            {% elif inv.status == 'pending' and not inv.is_expired %}
+              <span class="badge bg-warning text-dark">Pending</span>
+            {% else %}
+              <span class="badge bg-secondary">Expired</span>
             {% endif %}
           </td>
           <td class="text-muted small">{{ inv.expiry_time|date:"d M Y, H:i" }}</td>
           <td>
-            {% if inv.status == 'pending' and not inv.is_expired %}
-            <form method="post" action="{% url 'invitations:revoke' inv.pk %}" class="d-inline">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Revoke this invitation?">
-                <i class="bi bi-x-circle"></i>
-              </button>
-            </form>
-            {% endif %}
+            <div class="d-flex gap-1">
+              {% if inv.status != 'accepted' %}
+              <form method="post" action="{% url 'invitations:resend' inv.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-primary" title="Resend with fresh 30-min link">
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+              </form>
+              {% endif %}
+              {% if inv.status == 'pending' and not inv.is_expired %}
+              <form method="post" action="{% url 'invitations:revoke' inv.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Revoke invitation"
+                        onclick="return confirm('Revoke this invitation?')">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
           </td>
         </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-5">No invitations sent yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>

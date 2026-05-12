@@ -30,7 +30,13 @@ class Assignment(models.Model):
 
     class Meta:
         ordering = ['-assigned_at']
-        unique_together = [['participant', 'enumerator', 'status']]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['participant', 'enumerator'],
+                condition=models.Q(status='active'),
+                name='unique_active_assignment_per_enumerator',
+            )
+        ]
 
     def __str__(self):
         return f"{self.participant.pseudo_code} → {self.enumerator.get_full_name()}"

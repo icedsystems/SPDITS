@@ -190,7 +190,7 @@ MAX_UPLOAD_SIZE = env.int('MAX_UPLOAD_SIZE_MB', default=100) * 1024 * 1024
 ALLOWED_UPLOAD_EXTENSIONS = ['.csv', '.xls', '.xlsx']
 
 # Invitation settings
-INVITATION_EXPIRY_HOURS = env.int('INVITATION_EXPIRY_HOURS', default=1)
+INVITATION_EXPIRY_MINUTES = env.int('INVITATION_EXPIRY_MINUTES', default=30)
 APP_URL = env('APP_URL', default='http://localhost')
 
 # SFTP settings

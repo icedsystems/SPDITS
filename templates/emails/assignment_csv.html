@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.header { background: linear-gradient(135deg, #1a2840, #1a3a6b); padding: 30px; text-align: center; }
+.header h1 { color: #fff; margin: 0; font-size: 22px; }
+.header p { color: rgba(255,255,255,0.7); margin: 5px 0 0; font-size: 13px; }
+.body { padding: 30px; }
+.body h2 { color: #1a2840; font-size: 18px; margin-top: 0; }
+.details { background: #f8f9fa; border-radius: 6px; padding: 15px; margin: 20px 0; }
+.details table { width: 100%; border-collapse: collapse; }
+.details td { padding: 5px 0; font-size: 14px; }
+.details td:first-child { color: #666; width: 45%; }
+.btn { display: block; width: fit-content; margin: 25px auto; padding: 14px 30px; background: #1a3a6b; color: #fff !important; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; }
+.warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px 15px; font-size: 13px; color: #664d03; margin-top: 20px; }
+.danger { background: #f8d7da; border: 1px solid #f5c2c7; border-radius: 6px; padding: 12px 15px; font-size: 13px; color: #842029; margin-top: 12px; }
+.footer { background: #f8f9fa; padding: 15px 30px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+</style></head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>ICED SPDITS</h1>
+    <p>Secure Partner Data Intake System</p>
+  </div>
+  <div class="body">
+    <h2>New participants assigned to you</h2>
+    <p>Dear {{ enumerator.get_full_name }},</p>
+    <p>You have been assigned <strong>{{ participant_count }} participant(s)</strong> for field interviews. A secure CSV file with full participant details is ready for download.</p>
+    <div class="details">
+      <table>
+        <tr><td>Assigned by:</td><td><strong>{{ assigned_by }}</strong></td></tr>
+        <tr><td>Participants:</td><td><strong>{{ participant_count }}</strong></td></tr>
+        <tr><td>Link expires:</td><td><strong>{{ expires_at|date:"d M Y, H:i" }} EAT</strong></td></tr>
+      </table>
+    </div>
+    <a href="{{ download_url }}" class="btn">Download Participant CSV</a>
+    <div class="warning">
+      ⏰ This download link expires in <strong>30 minutes</strong>. Download the file immediately and store it securely.
+    </div>
+    <div class="danger">
+      🔒 <strong>Confidential:</strong> This file contains personal identifiers. Do not share, forward, or store it on unsecured devices. Handle in accordance with ICED data protection policy.
+    </div>
+  </div>
+  <div class="footer">
+    The International Centre for Evaluation and Development (ICED)<br>
+    This is an automated message — please do not reply.
+  </div>
+</div>
+</body>
+</html>

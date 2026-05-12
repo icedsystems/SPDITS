@@ -42,6 +42,17 @@ class UserEditForm(forms.ModelForm):
         model = CustomUser
         fields = ['first_name', 'last_name', 'email', 'role', 'partner', 'supervisor', 'phone', 'is_active']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(Column('first_name'), Column('last_name')),
+            Row(Column('email'), Column('role')),
+            Row(Column('partner'), Column('supervisor')),
+            Row(Column('phone'), Column('is_active')),
+            Submit('submit', 'Save Changes', css_class='btn btn-primary'),
+        )
+
 
 class PartnerForm(forms.ModelForm):
     class Meta:

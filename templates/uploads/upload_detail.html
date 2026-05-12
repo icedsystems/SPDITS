@@ -4,6 +4,38 @@
 {% block nav_uploads %}active{% endblock %}
 
 {% block content %}
+
+{% if can_approve_uploads and batch.status == 'pending_approval' %}
+<div class="alert alert-warning border-warning shadow-sm mb-4 p-0 overflow-hidden">
+  <div class="d-flex align-items-center px-4 py-3 bg-warning-subtle border-bottom border-warning">
+    <i class="bi bi-hourglass-split fs-4 me-3 text-warning"></i>
+    <div>
+      <h5 class="mb-0 fw-bold">Awaiting Your Approval</h5>
+      <p class="mb-0 small text-muted">{{ batch.partner.name }} uploaded <strong>{{ batch.original_filename }}</strong> — {{ batch.valid_records }} valid records ready to pseudocode.</p>
+    </div>
+  </div>
+  <div class="px-4 py-3">
+    <form method="post" action="{% url 'uploads:approve' batch.pk %}" class="d-flex gap-3 align-items-end flex-wrap">
+      {% csrf_token %}
+      <div>
+        <label class="form-label fw-semibold small mb-1">Decision</label>
+        <select name="action" class="form-select form-select-sm" style="width:260px" required>
+          <option value="approve">✓ Approve — proceed with pseudocoding</option>
+          <option value="reject">✗ Reject — notify partner</option>
+        </select>
+      </div>
+      <div class="flex-grow-1">
+        <label class="form-label fw-semibold small mb-1">Review Notes <span class="text-muted fw-normal">(optional)</span></label>
+        <input type="text" name="notes" class="form-control form-control-sm" placeholder="e.g. All records verified, approved for processing">
+      </div>
+      <button type="submit" class="btn btn-warning fw-bold px-4">
+        <i class="bi bi-check2-circle me-1"></i>Submit Decision
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <h4 class="fw-bold mb-0">{{ batch.batch_id }}</h4>

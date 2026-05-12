@@ -37,6 +37,7 @@ def notify_admin_new_upload(batch_pk):
     from apps.uploads.models import UploadBatch
     from apps.accounts.models import CustomUser, Role
     from .models import Notification, NotificationType
+    from django.core.mail import EmailMultiAlternatives
     try:
         batch = UploadBatch.objects.select_related('partner', 'uploaded_by').get(pk=batch_pk)
         admins = CustomUser.objects.filter(role=Role.SYSTEM_ADMIN, is_active=True)
@@ -44,23 +45,25 @@ def notify_admin_new_upload(batch_pk):
             Notification.objects.create(
                 recipient=admin,
                 notification_type=NotificationType.NEW_UPLOAD,
-                title=f'New upload pending approval',
+                title='New upload pending approval',
                 message=(f'{batch.partner.name} uploaded {batch.original_filename}. '
                          f'{batch.total_records} records, {batch.valid_records} valid.'),
                 link=f'/uploads/{batch.pk}/',
             )
-        # Send email
         context = {'batch': batch, 'app_url': settings.APP_URL}
         body = render_to_string('emails/upload_notification.txt', context)
+        html = render_to_string('emails/upload_notification.html', context)
         admin_emails = list(admins.values_list('email', flat=True))
         if admin_emails:
-            send_mail(
+            msg = EmailMultiAlternatives(
                 subject=f'[SPDITS] New upload requires approval — {batch.partner.name}',
-                message=body,
+                body=body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=admin_emails,
-                fail_silently=True,
+                to=admin_emails,
             )
+            msg.attach_alternative(html, 'text/html')
+            msg.send(fail_silently=True)
+            logger.info(f'Admin upload notification sent to {admin_emails} for batch {batch.batch_id}')
     except Exception as e:
         logger.exception(f'Failed to notify admin for batch {batch_pk}: {e}')
 
@@ -69,8 +72,9 @@ def notify_admin_new_upload(batch_pk):
 def notify_upload_decision(batch_pk):
     from apps.uploads.models import UploadBatch, BatchStatus
     from .models import Notification, NotificationType
+    from django.core.mail import EmailMultiAlternatives
     try:
-        batch = UploadBatch.objects.select_related('partner', 'uploaded_by').get(pk=batch_pk)
+        batch = UploadBatch.objects.select_related('partner', 'uploaded_by', 'reviewed_by').get(pk=batch_pk)
         if not batch.uploaded_by:
             return
         approved = batch.status == BatchStatus.APPROVED
@@ -79,17 +83,21 @@ def notify_upload_decision(batch_pk):
             notification_type=NotificationType.UPLOAD_APPROVED if approved else NotificationType.UPLOAD_REJECTED,
             title=f'Upload {"approved" if approved else "rejected"}',
             message=(f'Your upload {batch.original_filename} has been '
-                     f'{"approved" if approved else "rejected"}. {batch.review_notes}'),
+                     f'{"approved" if approved else "rejected"}.'
+                     + (f' Notes: {batch.review_notes}' if batch.review_notes else '')),
             link=f'/uploads/{batch.pk}/',
         )
         context = {'batch': batch, 'approved': approved, 'app_url': settings.APP_URL}
         body = render_to_string('emails/upload_decision.txt', context)
-        send_mail(
+        html = render_to_string('emails/upload_decision.html', context)
+        msg = EmailMultiAlternatives(
             subject=f'[SPDITS] Upload {"Approved" if approved else "Rejected"} — {batch.original_filename}',
-            message=body,
+            body=body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[batch.uploaded_by.email],
-            fail_silently=True,
+            to=[batch.uploaded_by.email],
         )
+        msg.attach_alternative(html, 'text/html')
+        msg.send(fail_silently=True)
+        logger.info(f'Upload decision email sent to {batch.uploaded_by.email} for batch {batch.batch_id}')
     except Exception as e:
         logger.exception(f'Failed to notify upload decision for batch {batch_pk}: {e}')

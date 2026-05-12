@@ -1,7 +1,18 @@
 import os
+import re
 from django.db import models
 from django.utils import timezone
 from apps.accounts.models import CustomUser, Partner
+
+
+def upload_batch_path(instance, filename):
+    partner_code = 'UNKNOWN'
+    if instance.partner_id:
+        try:
+            partner_code = re.sub(r'[^\w\-]', '_', instance.partner.code.upper())
+        except Exception:
+            pass
+    return f'uploads/{partner_code}/{filename}'
 
 
 class BatchStatus(models.TextChoices):
@@ -18,7 +29,7 @@ class UploadBatch(models.Model):
     batch_id = models.CharField(max_length=50, unique=True)
     partner = models.ForeignKey(Partner, on_delete=models.PROTECT, related_name='upload_batches')
     uploaded_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='upload_batches')
-    file = models.FileField(upload_to='uploads/%Y/%m/%d/')
+    file = models.FileField(upload_to=upload_batch_path)
     original_filename = models.CharField(max_length=255)
     file_size = models.BigIntegerField(default=0)
     file_type = models.CharField(max_length=20)

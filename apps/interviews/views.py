@@ -137,15 +137,25 @@ class QuickInterviewUpdateView(LoginRequiredMixin, View):
             messages.error(request, 'Invalid status selected.')
             return redirect('assignments:mine')
 
-        # Get or create the interview for this assignment
-        interview, created = Interview.objects.get_or_create(
-            assignment=assignment,
-            defaults={
-                'participant': assignment.participant,
-                'enumerator': assignment.enumerator,
-                'status': InterviewStatus.ASSIGNED,
-            }
+        # Find existing interview for this participant (however it was created),
+        # fall back to creating a fresh one linked to the assignment.
+        interview = (
+            Interview.objects.filter(assignment=assignment).first()
+            or Interview.objects.filter(participant=assignment.participant).first()
         )
+        if interview is None:
+            interview = Interview.objects.create(
+                participant=assignment.participant,
+                assignment=assignment,
+                enumerator=assignment.enumerator,
+                status=InterviewStatus.ASSIGNED,
+            )
+        else:
+            # Make sure the interview is linked to this assignment
+            if not interview.assignment_id:
+                interview.assignment = assignment
+            if not interview.enumerator_id:
+                interview.enumerator = assignment.enumerator
 
         old_status = interview.status
 

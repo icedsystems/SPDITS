@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.NotificationListView.as_view(), name='list'),
     path('<int:pk>/read/', views.NotificationMarkReadView.as_view(), name='mark_read'),
     path('read-all/', views.NotificationMarkAllReadView.as_view(), name='mark_all_read'),
+    path('email-config/', views.EmailConfigView.as_view(), name='email_config'),
 ]

@@ -127,12 +127,15 @@ class UploadDownloadView(LoginRequiredMixin, View):
         batch = get_object_or_404(UploadBatch, pk=pk)
         user = request.user
 
-        # Permission: admin, supervisor, or the partner who owns the batch
-        if user.is_partner():
+        # Admins can download any batch.
+        # Supervisors and implementing partners are scoped to their own partner's batches.
+        if user.is_admin():
+            pass
+        elif user.is_supervisor() or user.is_partner():
             if not user.partner or user.partner != batch.partner:
                 messages.error(request, 'You do not have permission to download this file.')
                 return redirect('uploads:detail', pk=pk)
-        elif not (user.is_admin() or user.is_supervisor()):
+        else:
             messages.error(request, 'You do not have permission to download this file.')
             return redirect('uploads:detail', pk=pk)
 

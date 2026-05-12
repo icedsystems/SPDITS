@@ -1,5 +1,6 @@
 from django.db import models
 from apps.accounts.models import CustomUser
+from apps.participants.models import get_fernet
 
 
 class NotificationType(models.TextChoices):
@@ -34,3 +35,45 @@ class Notification(models.Model):
         self.is_read = True
         self.read_at = timezone.now()
         self.save(update_fields=['is_read', 'read_at'])
+
+
+class EmailConfig(models.Model):
+    """Singleton model storing Microsoft Graph API email credentials."""
+    tenant_id = models.CharField(max_length=255, blank=True)
+    client_id = models.CharField(max_length=255, blank=True)
+    _client_secret = models.BinaryField(null=True, blank=True, db_column='client_secret')
+    sender_email = models.EmailField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Email Configuration'
+
+    def __str__(self):
+        return f'Email Config (sender: {self.sender_email or "not set"})'
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def set_secret(self, plaintext):
+        if plaintext:
+            f = get_fernet()
+            self._client_secret = f.encrypt(plaintext.encode())
+
+    def get_secret(self):
+        if not self._client_secret:
+            return ''
+        try:
+            f = get_fernet()
+            return f.decrypt(bytes(self._client_secret)).decode()
+        except Exception:
+            return ''
+
+    @property
+    def is_configured(self):
+        return bool(self.tenant_id and self.client_id and self._client_secret and self.sender_email)
+
+    @property
+    def has_secret(self):
+        return bool(self._client_secret)

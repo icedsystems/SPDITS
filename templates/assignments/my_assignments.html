@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <h4 class="fw-bold mb-0">My Assigned Participants</h4>
-    <p class="text-muted small">{{ page_obj.paginator.count|default:'0' }} active assignments — record your interview outcome after each visit</p>
+    <p class="text-muted small">{{ page_obj.paginator.count|default:'0' }} assignments — record your outcome after each visit</p>
   </div>
 </div>
 
@@ -25,55 +25,87 @@
       </thead>
       <tbody>
         {% for a in assignments %}
-        <tr>
+        <tr id="row-{{ a.pk }}">
           <td><span class="pseudocode">{{ a.participant.pseudo_code }}</span></td>
           <td class="small">{{ a.participant.partner.name }}</td>
           <td class="small text-muted">{{ a.participant.data.county|default:'—' }}</td>
           <td class="small text-muted">{{ a.assigned_at|date:"d M Y" }}</td>
+
+          <!-- Interview Status badge with icon -->
           <td>
-            {% if a.interview_status %}
-              <span class="badge bg-{{ a.interview_badge }}">{{ a.interview_status_display }}</span>
+            {% if not a.interview_status or a.interview_status == 'pending' %}
+              <span class="badge bg-secondary"><i class="bi bi-clock me-1"></i>Not Started</span>
+            {% elif a.interview_status == 'assigned' %}
+              <span class="badge bg-primary"><i class="bi bi-person-check me-1"></i>Assigned</span>
+            {% elif a.interview_status == 'in_progress' %}
+              <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>In Progress</span>
+            {% elif a.interview_status == 'completed' %}
+              <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Interviewed</span>
+            {% elif a.interview_status == 'refused' %}
+              <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Refused</span>
+            {% elif a.interview_status == 'unreachable' %}
+              <span class="badge bg-dark"><i class="bi bi-telephone-x me-1"></i>Unreachable</span>
+            {% elif a.interview_status == 'callback_required' %}
+              <span class="badge bg-info text-dark"><i class="bi bi-telephone-forward me-1"></i>Callback Required</span>
             {% else %}
-              <span class="badge bg-secondary">Not Started</span>
+              <span class="badge bg-secondary">{{ a.interview_status_display }}</span>
             {% endif %}
           </td>
+
+          <!-- Record Outcome -->
           <td>
             {% if a.interview_status == 'completed' or a.interview_status == 'refused' or a.interview_status == 'unreachable' %}
-              <span class="text-muted small">Done</span>
+              <span class="text-muted small fst-italic">Recorded</span>
               <a href="{% url 'participants:detail' a.participant.pk %}" class="btn btn-sm btn-outline-secondary ms-1" title="View"><i class="bi bi-eye"></i></a>
             {% else %}
-              <button class="btn btn-sm btn-success me-1" data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="completed" title="Interviewed">
-                <i class="bi bi-check-circle me-1"></i>Interviewed
-              </button>
-              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" title="Other outcomes"></button>
-              <ul class="dropdown-menu">
-                <li>
-                  <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="refused">
-                    <i class="bi bi-x-circle me-1"></i>Refused
-                  </button>
-                </li>
-                <li>
-                  <button class="dropdown-item text-dark" data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="unreachable">
-                    <i class="bi bi-telephone-x me-1"></i>Unreachable
-                  </button>
-                </li>
-                <li>
-                  <button class="dropdown-item text-info" data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="callback_required">
-                    <i class="bi bi-telephone-forward me-1"></i>Callback Required
-                  </button>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <a href="{% url 'participants:detail' a.participant.pk %}" class="dropdown-item">
-                    <i class="bi bi-eye me-1"></i>View Details
-                  </a>
-                </li>
-              </ul>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-clipboard-check me-1"></i>Record Outcome
+                </button>
+                <ul class="dropdown-menu shadow-sm">
+                  <li>
+                    <button type="button" class="dropdown-item text-success fw-semibold outcome-btn"
+                      data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="completed">
+                      <i class="bi bi-check-circle me-2"></i>Interviewed
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" class="dropdown-item text-danger outcome-btn"
+                      data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="refused">
+                      <i class="bi bi-x-circle me-2"></i>Refused
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" class="dropdown-item text-dark outcome-btn"
+                      data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="unreachable">
+                      <i class="bi bi-telephone-x me-2"></i>Unreachable
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" class="dropdown-item text-info outcome-btn"
+                      data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="callback_required">
+                      <i class="bi bi-telephone-forward me-2"></i>Callback Required
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" class="dropdown-item text-warning outcome-btn"
+                      data-bs-toggle="modal" data-bs-target="#outcomeModal{{ a.pk }}" data-status="in_progress">
+                      <i class="bi bi-hourglass-split me-2"></i>In Progress
+                    </button>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a href="{% url 'participants:detail' a.participant.pk %}" class="dropdown-item text-muted">
+                      <i class="bi bi-eye me-2"></i>View Details
+                    </a>
+                  </li>
+                </ul>
+              </div>
             {% endif %}
           </td>
         </tr>
 
-        <!-- Outcome Modal for this assignment -->
+        <!-- Outcome Modal -->
         <div class="modal fade" id="outcomeModal{{ a.pk }}" tabindex="-1">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -81,15 +113,17 @@
                 {% csrf_token %}
                 <input type="hidden" name="status" class="status-input">
                 <div class="modal-header">
-                  <h5 class="modal-title"><i class="bi bi-clipboard-check me-2"></i>Record Interview Outcome</h5>
+                  <h5 class="modal-title fw-bold"><i class="bi bi-clipboard-check me-2"></i>Record Interview Outcome</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                   <p class="text-muted small mb-3">Participant: <strong class="text-dark">{{ a.participant.pseudo_code }}</strong></p>
-                  <div class="mb-3">
-                    <label class="form-label fw-semibold">Outcome</label>
-                    <div class="status-display p-2 rounded bg-light fw-semibold text-center"></div>
+
+                  <!-- Status preview badge -->
+                  <div class="mb-3 text-center">
+                    <span class="status-badge-preview fs-6 badge"></span>
                   </div>
+
                   <div class="mb-3">
                     <label class="form-label fw-semibold">Notes <span class="text-muted fw-normal">(optional)</span></label>
                     <textarea name="remarks" class="form-control" rows="3" placeholder="e.g. Participant was cooperative, interview completed in full…"></textarea>
@@ -110,7 +144,7 @@
           </div>
         </div>
         {% empty %}
-        <tr><td colspan="6" class="text-center text-muted py-5">No active assignments yet.</td></tr>
+        <tr><td colspan="6" class="text-center text-muted py-5">No assignments yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -121,36 +155,34 @@
 
 {% block extra_js %}
 <script>
-const STATUS_LABELS = {
-  completed: 'Interviewed (Completed)',
-  refused: 'Refused Interview',
-  unreachable: 'Unreachable / Not Found',
-  callback_required: 'Callback Required',
-  in_progress: 'In Progress',
-};
-const STATUS_COLORS = {
-  completed: 'text-success',
-  refused: 'text-danger',
-  unreachable: 'text-dark',
-  callback_required: 'text-info',
-  in_progress: 'text-warning',
+const STATUS_CONFIG = {
+  completed:         { label: 'Interviewed',       icon: 'bi-check-circle',       bg: 'bg-success',          textClass: 'text-success' },
+  refused:           { label: 'Refused',            icon: 'bi-x-circle',           bg: 'bg-danger',           textClass: 'text-danger' },
+  unreachable:       { label: 'Unreachable',        icon: 'bi-telephone-x',        bg: 'bg-dark',             textClass: 'text-dark' },
+  callback_required: { label: 'Callback Required',  icon: 'bi-telephone-forward',  bg: 'bg-info text-dark',   textClass: 'text-info' },
+  in_progress:       { label: 'In Progress',        icon: 'bi-hourglass-split',    bg: 'bg-warning text-dark',textClass: 'text-warning' },
+  assigned:          { label: 'Assigned',           icon: 'bi-person-check',       bg: 'bg-primary',          textClass: 'text-primary' },
+  pending:           { label: 'Not Started',        icon: 'bi-clock',              bg: 'bg-secondary',        textClass: 'text-secondary' },
 };
 
-document.querySelectorAll('[data-bs-target^="#outcomeModal"]').forEach(btn => {
+document.querySelectorAll('.outcome-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const modalEl = document.querySelector(btn.dataset.bsTarget);
     if (!modalEl) return;
     const status = btn.dataset.status;
+    const cfg = STATUS_CONFIG[status] || { label: status, icon: 'bi-circle', bg: 'bg-secondary', textClass: '' };
+
+    // Set hidden status field
     modalEl.querySelector('.status-input').value = status;
-    const display = modalEl.querySelector('.status-display');
-    display.textContent = STATUS_LABELS[status] || status;
-    display.className = 'status-display p-2 rounded bg-light fw-semibold text-center ' + (STATUS_COLORS[status] || '');
+
+    // Update the badge preview
+    const badge = modalEl.querySelector('.status-badge-preview');
+    badge.className = `status-badge-preview fs-6 badge ${cfg.bg}`;
+    badge.innerHTML = `<i class="bi ${cfg.icon} me-1"></i>${cfg.label}`;
+
+    // Show/hide callback date field
     const callbackRow = modalEl.querySelector('.callback-date-row');
-    if (status === 'callback_required') {
-      callbackRow.classList.remove('d-none');
-    } else {
-      callbackRow.classList.add('d-none');
-    }
+    callbackRow.classList.toggle('d-none', status !== 'callback_required');
   });
 });
 </script>

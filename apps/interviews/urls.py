@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:pk>/', views.InterviewDetailView.as_view(), name='detail'),
     path('<int:pk>/update/', views.InterviewUpdateView.as_view(), name='update'),
     path('create/<int:participant_pk>/', views.InterviewCreateView.as_view(), name='create'),
+    path('quick/<int:assignment_pk>/', views.QuickInterviewUpdateView.as_view(), name='quick_update'),
 ]

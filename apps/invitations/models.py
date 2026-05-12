@@ -42,7 +42,7 @@ class Invitation(models.Model):
             self.token_hash = hashlib.sha256(self.token.encode()).hexdigest()
         if not self.expiry_time:
             from datetime import timedelta
-            self.expiry_time = timezone.now() + timedelta(hours=settings.INVITATION_EXPIRY_HOURS)
+            self.expiry_time = timezone.now() + timedelta(minutes=settings.INVITATION_EXPIRY_MINUTES)
         super().save(*args, **kwargs)
 
     def is_valid(self):

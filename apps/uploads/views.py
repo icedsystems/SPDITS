@@ -65,14 +65,21 @@ class UploadCreateView(LoginRequiredMixin, View):
                 source='web',
             )
             batch.save()
-            task = process_upload_batch.delay(batch.pk)
-            batch.celery_task_id = task.id
-            batch.status = BatchStatus.PROCESSING
-            batch.save(update_fields=['celery_task_id', 'status'])
             log_action(request, 'FILE_UPLOAD', 'uploads', batch.pk,
                        description=f'Uploaded {f.name} for {batch.partner.name}')
-            messages.success(request, f'File "{f.name}" uploaded and queued for processing.')
-            return redirect('uploads:detail', pk=batch.pk)
+            # Process synchronously so results are immediate (no Celery worker required)
+            try:
+                process_upload_batch(batch.pk)
+                batch.refresh_from_db()
+                messages.success(
+                    request,
+                    f'File "{f.name}" uploaded and processed successfully — '
+                    f'{batch.valid_records} valid records, {batch.invalid_records} invalid, '
+                    f'{batch.duplicate_records} duplicates.'
+                )
+            except Exception as exc:
+                messages.error(request, f'File uploaded but processing failed: {exc}')
+            return redirect('uploads:list')
         return render(request, self.template_name, {'form': form})
 
 

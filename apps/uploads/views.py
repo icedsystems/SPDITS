@@ -9,7 +9,7 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 
 from apps.audit.utils import log_action
-from apps.notifications.tasks import notify_admin_new_upload
+from apps.notifications.tasks import notify_admin_new_upload, notify_upload_decision
 from apps.processing.tasks import process_upload_batch
 from .forms import FileUploadForm, UploadApprovalForm
 from .models import UploadBatch, BatchStatus
@@ -77,6 +77,11 @@ class UploadCreateView(LoginRequiredMixin, View):
                     f'{batch.valid_records} valid records, {batch.invalid_records} invalid, '
                     f'{batch.duplicate_records} duplicates.'
                 )
+                # Notify all system admins that a new upload is awaiting approval
+                try:
+                    notify_admin_new_upload(batch.pk)
+                except Exception as notify_exc:
+                    logger.warning(f'Admin upload notification failed: {notify_exc}')
             except Exception as exc:
                 messages.error(request, f'File uploaded but processing failed: {exc}')
             return redirect('uploads:list')
@@ -117,6 +122,11 @@ class UploadApprovalView(LoginRequiredMixin, View):
                 log_action(request, 'REJECT_UPLOAD', 'uploads', batch.pk,
                            description=f'Rejected batch {batch.batch_id}: {notes}')
                 messages.warning(request, f'Batch {batch.batch_id} rejected.')
+            # Notify the partner who uploaded about the decision
+            try:
+                notify_upload_decision(batch.pk)
+            except Exception as notify_exc:
+                logger.warning(f'Upload decision notification failed: {notify_exc}')
         return redirect('uploads:detail', pk=pk)
 
 

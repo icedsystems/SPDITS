@@ -7,5 +7,6 @@ urlpatterns = [
     path('', views.InvitationListView.as_view(), name='list'),
     path('create/', views.InvitationCreateView.as_view(), name='create'),
     path('<int:pk>/revoke/', views.InvitationRevokeView.as_view(), name='revoke'),
+    path('<int:pk>/resend/', views.InvitationResendView.as_view(), name='resend'),
     path('accept/<str:token>/', views.InvitationAcceptView.as_view(), name='accept'),
 ]

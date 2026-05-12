@@ -98,7 +98,10 @@
         <i class="bi bi-building me-2"></i> Partners
       </a>
       <a href="{% url 'sftp:config_list' %}" class="list-group-item list-group-item-action bg-transparent text-white">
-        <i class="bi bi-gear me-2"></i> SFTP Config
+        <i class="bi bi-hdd-network me-2"></i> SFTP Config
+      </a>
+      <a href="{% url 'notifications:email_config' %}" class="list-group-item list-group-item-action bg-transparent text-white {% block nav_email_config %}{% endblock %}">
+        <i class="bi bi-envelope-gear me-2"></i> Email Settings
       </a>
       {% endif %}
     </div>

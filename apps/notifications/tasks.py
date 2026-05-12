@@ -15,7 +15,7 @@ def send_invitation_email(invitation_pk):
         context = {
             'invitation': inv,
             'accept_url': inv.get_accept_url,
-            'expiry_hours': settings.INVITATION_EXPIRY_HOURS,
+            'expiry_minutes': settings.INVITATION_EXPIRY_MINUTES,
         }
         body = render_to_string('emails/invitation.txt', context)
         html = render_to_string('emails/invitation.html', context)

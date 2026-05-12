@@ -26,6 +26,13 @@ class ParticipantListView(LoginRequiredMixin, ListView):
         user = self.request.user
         if user.is_partner() and user.partner:
             qs = qs.filter(partner=user.partner)
+        elif user.is_enumerator():
+            # Enumerators only see participants assigned to them
+            from apps.assignments.models import Assignment
+            assigned_pids = Assignment.objects.filter(
+                enumerator=user
+            ).values_list('participant_id', flat=True)
+            qs = qs.filter(pk__in=assigned_pids)
         q = self.request.GET.get('q')
         status = self.request.GET.get('status')
         partner = self.request.GET.get('partner')

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 {% block title %}{% if object %}Edit User{% else %}Create User{% endif %} — ICED SPDITS{% endblock %}
 {% block page_title %}{% if object %}Edit User{% else %}Create User{% endif %}{% endblock %}
 
@@ -14,11 +13,132 @@
       <div class="card-body">
         <form method="post" novalidate>
           {% csrf_token %}
-          {% crispy form %}
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">First Name</label>
+              {{ form.first_name.as_widget }}
+              {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Last Name</label>
+              {{ form.last_name.as_widget }}
+              {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Email Address</label>
+              {{ form.email.as_widget }}
+              {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+            </div>
+            {% if form.username %}
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Username</label>
+              {{ form.username.as_widget }}
+              {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors }}</div>{% endif %}
+            </div>
+            {% endif %}
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Partner</label>
+              {{ form.partner.as_widget }}
+              {% if form.partner.errors %}<div class="text-danger small">{{ form.partner.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Supervisor</label>
+              {{ form.supervisor.as_widget }}
+              {% if form.supervisor.errors %}<div class="text-danger small">{{ form.supervisor.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Phone</label>
+              {{ form.phone.as_widget }}
+              {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors }}</div>{% endif %}
+            </div>
+            {% if form.is_active %}
+            <div class="col-md-6 d-flex align-items-center pt-4">
+              <div class="form-check">
+                {{ form.is_active }}
+                <label class="form-check-label fw-semibold small" for="{{ form.is_active.id_for_label }}">Active Account</label>
+              </div>
+            </div>
+            {% endif %}
+            {% if form.password %}
+            <div class="col-12">
+              <label class="form-label fw-semibold small">Password</label>
+              {{ form.password.as_widget }}
+              <div class="form-text">{{ form.password.help_text }}</div>
+              {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors }}</div>{% endif %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Primary Role -->
+          <hr class="my-4">
+          <h6 class="fw-bold mb-3"><i class="bi bi-person-badge me-2 text-primary"></i>Role Assignment</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Primary Role <span class="text-danger">*</span></label>
+              {{ form.role.as_widget }}
+              <div class="form-text">Drives the user's dashboard and default access level.</div>
+              {% if form.role.errors %}<div class="text-danger small">{{ form.role.errors }}</div>{% endif %}
+            </div>
+          </div>
+
+          <!-- Additional Roles -->
+          <div class="card mt-3 border-primary-subtle">
+            <div class="card-header bg-primary-subtle py-2">
+              <h6 class="mb-0 fw-bold small text-primary"><i class="bi bi-layers me-1"></i>Additional Roles</h6>
+            </div>
+            <div class="card-body py-3">
+              <p class="text-muted small mb-3">{{ form.extra_roles.help_text }}</p>
+              <div class="row g-2">
+                {% for choice in form.extra_roles %}
+                <div class="col-md-4">
+                  <div class="form-check">
+                    {{ choice.tag }}
+                    <label class="form-check-label small" for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% if form.extra_roles.errors %}<div class="text-danger small mt-2">{{ form.extra_roles.errors }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i>{% if object %}Save Changes{% else %}Create User{% endif %}
+            </button>
+            <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
         </form>
-        <a href="{% url 'accounts:user_list' %}" class="btn btn-link text-muted mt-2">← Back to Users</a>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var primaryRole = document.getElementById('{{ form.role.id_for_label }}');
+  function syncCheckboxes() {
+    var val = primaryRole ? primaryRole.value : '';
+    document.querySelectorAll('#{{ form.extra_roles.auto_id }} input[type=checkbox]').forEach(function (cb) {
+      if (cb.value === val) {
+        cb.checked = false;
+        cb.disabled = true;
+        cb.closest('.form-check').title = 'Already assigned as primary role';
+      } else {
+        cb.disabled = false;
+        cb.closest('.form-check').title = '';
+      }
+    });
+  }
+  if (primaryRole) {
+    primaryRole.addEventListener('change', syncCheckboxes);
+    syncCheckboxes();
+  }
+});
+</script>
 {% endblock %}

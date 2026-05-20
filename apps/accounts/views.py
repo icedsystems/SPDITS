@@ -159,14 +159,21 @@ class UserCreateView(AdminOrSupervisorMixin, CreateView):
     template_name = 'accounts/user_form.html'
     success_url = '/accounts/users/'
 
+    def _is_supervisor_mode(self):
+        return self.request.user.is_supervisor() and not self.request.user.is_admin()
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['supervisor_mode'] = self.request.user.is_supervisor() and not self.request.user.is_admin()
+        kwargs['supervisor_mode'] = self._is_supervisor_mode()
+        if self._is_supervisor_mode():
+            kwargs['supervisor_user'] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['supervisor_mode'] = self.request.user.is_supervisor() and not self.request.user.is_admin()
+        ctx['supervisor_mode'] = self._is_supervisor_mode()
+        if self._is_supervisor_mode():
+            ctx['supervisor_partner_count'] = self.request.user.get_assigned_partners().count()
         return ctx
 
     def form_valid(self, form):
@@ -175,10 +182,14 @@ class UserCreateView(AdminOrSupervisorMixin, CreateView):
         user = form.save(commit=False)
         user.set_password(secrets.token_urlsafe(20))
         user.force_password_change = True
-        if self.request.user.is_supervisor() and not self.request.user.is_admin():
+        if self._is_supervisor_mode():
             user.role = Role.ENUMERATOR
             user.supervisor = self.request.user
-            user.partner = self.request.user.partner
+            # Partner: either chosen from form or auto from single-partner supervisor
+            if 'partner' not in form.cleaned_data:
+                user.partner = getattr(form, '_single_partner', None) or self.request.user.partner
+            else:
+                user.partner = form.cleaned_data.get('partner') or self.request.user.partner
         user.save()
         if self.request.user.is_admin():
             extra_roles = form.cleaned_data.get('extra_roles', [])
@@ -198,12 +209,17 @@ class UserEditView(AdminRequiredMixin, UpdateView):
     success_url = '/accounts/users/'
 
     def form_valid(self, form):
-        user = form.save()
+        user = form.save(commit=False)
+        user.save()
+        # Extra roles
         extra_roles = form.cleaned_data.get('extra_roles', [])
         UserRole.objects.filter(user=user).delete()
         for role in extra_roles:
             if role != user.role:
                 UserRole.objects.get_or_create(user=user, role=role)
+        # Extra partners (M2M — must save after user.save())
+        extra_partners = form.cleaned_data.get('extra_partners', [])
+        user.extra_partners.set(extra_partners)
         log_action(self.request, 'EDIT_USER', 'accounts', user.pk, description=f'Edited user {user.email}')
         messages.success(self.request, 'User updated successfully.')
         return redirect(self.success_url)

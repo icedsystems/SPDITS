@@ -211,22 +211,28 @@ class UserCreateView(AdminOrSupervisorMixin, CreateView):
                 if role != user.role:
                     UserRole.objects.get_or_create(user=user, role=role)
         log_action(self.request, 'CREATE_USER', 'accounts', user.pk, description=f'Created user {user.email}')
-        # Send welcome email so the new user knows they have an account and how to log in
+        # Send welcome email with a one-time password setup link
         try:
             from django.core.mail import send_mail
             from django.template.loader import render_to_string
-            request = self.request
-            login_url = request.build_absolute_uri('/accounts/login/')
-            ctx = {'user': user, 'login_url': login_url}
+            from django.contrib.auth.tokens import default_token_generator
+            from django.utils.http import urlsafe_base64_encode
+            from django.utils.encoding import force_bytes
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            setup_url = self.request.build_absolute_uri(
+                f'/accounts/password-reset/{uid}/{token}/'
+            )
+            ctx = {'user': user, 'setup_url': setup_url}
             send_mail(
-                subject='[ICED SPDITS] Your account has been created',
+                subject='[ICED SPDITS] Your account has been created — set your password',
                 message=render_to_string('emails/welcome_user.txt', ctx),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
                 html_message=render_to_string('emails/welcome_user.html', ctx),
                 fail_silently=False,
             )
-            messages.success(self.request, f'User {user.get_full_name()} created and a welcome email has been sent to {user.email}.')
+            messages.success(self.request, f'User {user.get_full_name()} created and a password setup email has been sent to {user.email}.')
         except Exception as e:
             logger.exception(f'Welcome email failed for {user.email}: {e}')
             messages.warning(self.request, f'User {user.get_full_name()} created, but the welcome email could not be sent ({e}). Please share the login link manually: /accounts/login/')

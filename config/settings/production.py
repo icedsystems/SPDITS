@@ -3,7 +3,8 @@ from .base import *
 DEBUG = False
 
 APP_URL = env('APP_URL', default='')
-CSRF_TRUSTED_ORIGINS = [u for u in [APP_URL, f'https://ea.data.iced-eval.org'] if u]
+CSRF_TRUSTED_ORIGINS = [u for u in [APP_URL, 'https://ea.data.iced-eval.org'] if u]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True

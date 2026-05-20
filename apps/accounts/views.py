@@ -14,7 +14,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
 from apps.audit.utils import log_action
 from .forms import CustomLoginForm, UserCreateForm, UserEditForm, PartnerForm
-from .models import CustomUser, Partner
+from .models import CustomUser, Partner, UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +148,11 @@ class UserCreateView(AdminRequiredMixin, CreateView):
         if password:
             user.set_password(password)
         user.save()
+        extra_roles = form.cleaned_data.get('extra_roles', [])
+        UserRole.objects.filter(user=user).delete()
+        for role in extra_roles:
+            if role != user.role:
+                UserRole.objects.get_or_create(user=user, role=role)
         log_action(self.request, 'CREATE_USER', 'accounts', user.pk, description=f'Created user {user.email}')
         messages.success(self.request, f'User {user.email} created successfully.')
         return redirect(self.success_url)
@@ -161,6 +166,11 @@ class UserEditView(AdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         user = form.save()
+        extra_roles = form.cleaned_data.get('extra_roles', [])
+        UserRole.objects.filter(user=user).delete()
+        for role in extra_roles:
+            if role != user.role:
+                UserRole.objects.get_or_create(user=user, role=role)
         log_action(self.request, 'EDIT_USER', 'accounts', user.pk, description=f'Edited user {user.email}')
         messages.success(self.request, 'User updated successfully.')
         return redirect(self.success_url)

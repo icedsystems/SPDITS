@@ -44,7 +44,14 @@
             </div>
           </td>
           <td class="text-muted">{{ u.email }}</td>
-          <td><span class="badge bg-{{ u.get_role_badge_color }}">{{ u.display_role }}</span></td>
+          <td>
+            <span class="badge bg-{{ u.get_role_badge_color }}">{{ u.display_role }}</span>
+            {% for label in u.get_all_role_labels %}
+              {% if not forloop.first %}
+              <span class="badge bg-secondary ms-1">{{ label }}</span>
+              {% endif %}
+            {% endfor %}
+          </td>
           <td>{{ u.partner|default:'—' }}</td>
           <td>
             {% if u.is_active %}<span class="badge bg-success-subtle text-success">Active</span>

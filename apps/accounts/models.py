@@ -67,29 +67,51 @@ class CustomUser(AbstractUser):
     def display_role(self):
         return self.get_role_display()
 
+    def has_role(self, *roles):
+        """True if user's primary role OR any extra role is in the given roles."""
+        if self.role in roles:
+            return True
+        return self.extra_role_assignments.filter(role__in=roles).exists()
+
+    def get_all_roles(self):
+        """Return list of all role values this user holds (primary + extra)."""
+        roles = [self.role]
+        for r in self.extra_role_assignments.values_list('role', flat=True):
+            if r not in roles:
+                roles.append(r)
+        return roles
+
+    def get_all_role_labels(self):
+        role_map = dict(Role.choices)
+        return [role_map.get(r, r) for r in self.get_all_roles()]
+
     def is_admin(self):
-        return self.role == Role.SYSTEM_ADMIN
+        return self.has_role(Role.SYSTEM_ADMIN)
 
     def is_partner(self):
-        return self.role == Role.IMPLEMENTING_PARTNER
+        return self.has_role(Role.IMPLEMENTING_PARTNER)
 
     def is_supervisor(self):
-        return self.role == Role.SUPERVISOR
+        return self.has_role(Role.SUPERVISOR)
 
     def is_enumerator(self):
-        return self.role == Role.ENUMERATOR
+        return self.has_role(Role.ENUMERATOR)
 
     def is_compliance_officer(self):
-        return self.role == Role.COMPLIANCE_OFFICER
+        return self.has_role(Role.COMPLIANCE_OFFICER)
 
     def is_tracer(self):
-        return self.role == Role.TRACER
+        return self.has_role(Role.TRACER)
 
     def can_reidentify(self):
-        return self.role in [Role.SYSTEM_ADMIN, Role.COMPLIANCE_OFFICER]
+        return self.has_role(Role.SYSTEM_ADMIN, Role.COMPLIANCE_OFFICER)
 
     def can_approve_uploads(self):
-        return self.role == Role.SYSTEM_ADMIN
+        return self.has_role(Role.SYSTEM_ADMIN)
+
+    def can_view_contacts(self):
+        """Tracers, supervisors, and admins can view decrypted participant contacts."""
+        return self.has_role(Role.SYSTEM_ADMIN, Role.SUPERVISOR, Role.TRACER)
 
     def get_role_badge_color(self):
         colors = {
@@ -101,6 +123,20 @@ class CustomUser(AbstractUser):
             Role.TRACER: 'success',
         }
         return colors.get(self.role, 'secondary')
+
+
+class UserRole(models.Model):
+    """Extra roles assigned to a user in addition to their primary role."""
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='extra_role_assignments')
+    role = models.CharField(max_length=50, choices=Role.choices)
+
+    class Meta:
+        unique_together = [('user', 'role')]
+        verbose_name = 'Extra User Role'
+        verbose_name_plural = 'Extra User Roles'
+
+    def __str__(self):
+        return f"{self.user.email} — {self.get_role_display()}"
 
 
 class UserSession(models.Model):

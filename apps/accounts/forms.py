@@ -53,6 +53,22 @@ class UserCreateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if CustomUser.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                f'A user with the email address "{email}" already exists in the system.'
+            )
+        return email
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if username and CustomUser.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError(
+                f'The username "{username}" is already taken. Please choose a different one.'
+            )
+        return username
+
 
 class UserEditForm(forms.ModelForm):
     extra_roles = forms.MultipleChoiceField(

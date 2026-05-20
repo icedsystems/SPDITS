@@ -94,6 +94,44 @@ class TracedQueueView(LoginRequiredMixin, ListView):
         ).select_related('partner')
 
 
+class TracerContactView(LoginRequiredMixin, View):
+    """Show decrypted contact details to tracers/supervisors/admins. Fully audited."""
+
+    ALLOWED_ROLES = ['system_admin', 'tracer', 'supervisor']
+
+    def post(self, request, pk):
+        if request.user.role not in self.ALLOWED_ROLES:
+            messages.error(request, 'You do not have permission to view contact details.')
+            return redirect('tracing:queue')
+
+        participant = get_object_or_404(
+            Participant,
+            pk=pk,
+            status__in=[ParticipantStatus.UPLOADED, ParticipantStatus.TRACING]
+        )
+
+        try:
+            from apps.participants.models import IdentityMap
+            identity = participant.identity_map
+            contacts = identity.get_identifiers()
+        except Exception:
+            messages.error(request, 'No contact information found for this participant.')
+            return redirect('tracing:queue')
+
+        log_action(
+            request,
+            'TRACER_CONTACT_VIEW',
+            'tracing',
+            pk,
+            description=f'{request.user.email} viewed contacts for {participant.pseudo_code}',
+        )
+
+        return render(request, 'tracing/tracer_contact.html', {
+            'participant': participant,
+            'contacts': contacts,
+        })
+
+
 class TracingHistoryView(LoginRequiredMixin, ListView):
     model = TracingLog
     template_name = 'tracing/tracing_history.html'

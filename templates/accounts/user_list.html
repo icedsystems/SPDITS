@@ -1,26 +1,38 @@
 {% extends 'base.html' %}
-{% block title %}Users — ICED SPDITS{% endblock %}
-{% block page_title %}User Management{% endblock %}
+{% block title %}{% if is_supervisor_view %}My Enumerators{% else %}Users{% endif %} — ICED SPDITS{% endblock %}
+{% block page_title %}{% if is_supervisor_view %}My Enumerators{% else %}User Management{% endif %}{% endblock %}
 {% block nav_users %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold mb-0">Users</h4>
-    <p class="text-muted small">Manage system users and their roles</p>
+    <h4 class="fw-bold mb-0">{% if is_supervisor_view %}My Enumerators{% else %}Users{% endif %}</h4>
+    <p class="text-muted small">
+      {% if is_supervisor_view %}
+        Enumerators assigned to you
+      {% else %}
+        Manage system users and their roles
+      {% endif %}
+    </p>
   </div>
-  <a href="{% url 'accounts:user_create' %}" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Add User</a>
+  <a href="{% url 'accounts:user_create' %}" class="btn btn-primary">
+    <i class="bi bi-person-plus me-1"></i>{% if is_supervisor_view %}Add Enumerator{% else %}Add User{% endif %}
+  </a>
 </div>
 
 <div class="card">
   <div class="card-body p-0">
     <div class="p-3 border-bottom d-flex gap-2">
       <form method="get" class="d-flex gap-2">
-        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search users..." value="{{ request.GET.q }}">
+        <input type="text" name="q" class="form-control form-control-sm"
+               placeholder="Search {% if is_supervisor_view %}enumerators{% else %}users{% endif %}…"
+               value="{{ request.GET.q }}">
+        {% if not is_supervisor_view %}
         <select name="role" class="form-select form-select-sm" style="width:180px">
           <option value="">All Roles</option>
           {% for val, label in roles %}<option value="{{ val }}" {% if request.GET.role == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
         </select>
+        {% endif %}
         <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
         <a href="{% url 'accounts:user_list' %}" class="btn btn-sm btn-outline-secondary">Clear</a>
       </form>
@@ -28,7 +40,13 @@
     <table class="table table-hover mb-0">
       <thead class="bg-light">
         <tr>
-          <th>Name</th><th>Email</th><th>Role</th><th>Partner</th><th>Status</th><th>Joined</th><th></th>
+          <th>Name</th>
+          <th>Email</th>
+          {% if not is_supervisor_view %}<th>Role</th><th>Partner</th>{% endif %}
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Joined</th>
+          {% if not is_supervisor_view %}<th></th>{% endif %}
         </tr>
       </thead>
       <tbody>
@@ -44,6 +62,7 @@
             </div>
           </td>
           <td class="text-muted">{{ u.email }}</td>
+          {% if not is_supervisor_view %}
           <td>
             <span class="badge bg-{{ u.get_role_badge_color }}">{{ u.display_role }}</span>
             {% for label in u.get_all_role_labels %}
@@ -53,11 +72,14 @@
             {% endfor %}
           </td>
           <td>{{ u.partner|default:'—' }}</td>
+          {% endif %}
+          <td class="text-muted small">{{ u.phone|default:'—' }}</td>
           <td>
             {% if u.is_active %}<span class="badge bg-success-subtle text-success">Active</span>
             {% else %}<span class="badge bg-danger-subtle text-danger">Inactive</span>{% endif %}
           </td>
           <td class="text-muted small">{{ u.created_at|date:"d M Y" }}</td>
+          {% if not is_supervisor_view %}
           <td>
             <div class="d-flex gap-1">
               <a href="{% url 'accounts:user_edit' u.pk %}" class="btn btn-sm btn-outline-secondary" title="Edit user">
@@ -69,7 +91,9 @@
               </button>
             </div>
           </td>
+          {% endif %}
         </tr>
+        {% if not is_supervisor_view %}
         <!-- Reset Password Modal -->
         <div class="modal fade" id="resetModal{{ u.pk }}" tabindex="-1">
           <div class="modal-dialog modal-sm">
@@ -97,8 +121,17 @@
             </div>
           </div>
         </div>
+        {% endif %}
         {% empty %}
-        <tr><td colspan="7" class="text-center text-muted py-4">No users found.</td></tr>
+        <tr>
+          <td colspan="{% if is_supervisor_view %}5{% else %}8{% endif %}" class="text-center text-muted py-4">
+            {% if is_supervisor_view %}
+              No enumerators assigned to you yet.
+            {% else %}
+              No users found.
+            {% endif %}
+          </td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>

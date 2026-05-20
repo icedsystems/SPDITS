@@ -176,6 +176,24 @@ class UserEditView(AdminRequiredMixin, UpdateView):
         return redirect(self.success_url)
 
 
+class AdminPasswordResetView(AdminRequiredMixin, View):
+    """Admin sets a new password directly for any user — no email required."""
+
+    def post(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        new_password = request.POST.get('new_password', '').strip()
+        if len(new_password) < 8:
+            messages.error(request, 'Password must be at least 8 characters.')
+            return redirect('accounts:user_list')
+        user.set_password(new_password)
+        user.force_password_change = True
+        user.save(update_fields=['password', 'force_password_change'])
+        log_action(request, 'ADMIN_PASSWORD_RESET', 'accounts', pk,
+                   description=f'{request.user.email} reset password for {user.email}')
+        messages.success(request, f'Password for {user.email} has been reset. They will be prompted to change it on next login.')
+        return redirect('accounts:user_list')
+
+
 class PartnerListView(AdminRequiredMixin, ListView):
     model = Partner
     template_name = 'accounts/partner_list.html'

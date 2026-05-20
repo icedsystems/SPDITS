@@ -33,6 +33,10 @@ preview.db
 media/
 staticfiles/
 
+# Dev-only settings (environment-specific, not for repo)
+config/settings/preview.py
+config/settings/local.py
+
 # Environment
 .env
 .env.*

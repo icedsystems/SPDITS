@@ -33,6 +33,8 @@ class LoginView(View):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            if getattr(user, 'force_password_change', False):
+                return redirect('/accounts/set-password/')
             next_url = request.GET.get('next', 'dashboards:home')
             return redirect(next_url)
         return render(request, self.template_name, {'form': form})
@@ -106,6 +108,8 @@ class AzureOAuthCallbackView(View):
             return redirect('accounts:login')
 
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        if getattr(user, 'force_password_change', False):
+            return redirect('/accounts/set-password/')
         return redirect('dashboards:home')
 
 

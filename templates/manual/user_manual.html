@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICED SPDITS — User Technical Manual</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;font-size:10.5px;color:#1a1a2e;background:#fff;line-height:1.45}
+  .page{width:210mm;min-height:297mm;margin:0 auto;padding:12mm 14mm 10mm}
+  h1{font-size:17px;font-weight:700;color:#fff;letter-spacing:.3px}
+  .header{background:linear-gradient(135deg,#1a2840 0%,#1a3a6b 100%);color:#fff;padding:10px 14px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .header-right{text-align:right;font-size:9px;opacity:.85;line-height:1.6}
+  .subtitle{font-size:10px;opacity:.75;margin-top:2px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+  .section{background:#f8f9fb;border:1px solid #e2e8f0;border-radius:5px;padding:7px 9px}
+  .section.accent{border-left:3px solid #1a3a6b}
+  .section.green{border-left:3px solid #16a34a}
+  .section.orange{border-left:3px solid #ea580c}
+  .section.purple{border-left:3px solid #7c3aed}
+  .section.red{border-left:3px solid #dc2626}
+  .section.teal{border-left:3px solid #0891b2}
+  .section.yellow{border-left:3px solid #ca8a04}
+  .section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;gap:4px}
+  .section-title .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+  .blue .dot{background:#1a3a6b} .green .dot{background:#16a34a} .orange .dot{background:#ea580c}
+  .purple .dot{background:#7c3aed} .red .dot{background:#dc2626} .teal .dot{background:#0891b2}
+  .yellow .dot{background:#ca8a04}
+  table{width:100%;border-collapse:collapse;font-size:9.5px}
+  th{background:#e8edf5;padding:3px 5px;text-align:left;font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:.3px}
+  td{padding:3px 5px;border-bottom:1px solid #eef0f4;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .badge{display:inline-block;padding:1px 5px;border-radius:10px;font-size:8.5px;font-weight:600;white-space:nowrap}
+  .badge-admin{background:#fee2e2;color:#b91c1c}
+  .badge-partner{background:#dbeafe;color:#1d4ed8}
+  .badge-sup{background:#fef9c3;color:#854d0e}
+  .badge-enum{background:#e0f2fe;color:#075985}
+  .badge-tracer{background:#dcfce7;color:#166534}
+  .badge-comp{background:#f3f4f6;color:#374151}
+  .step{display:flex;gap:5px;margin-bottom:3px;align-items:flex-start}
+  .step-num{background:#1a3a6b;color:#fff;border-radius:50%;width:14px;height:14px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .step-text{font-size:9.5px;line-height:1.4}
+  .note{background:#fefce8;border:1px solid #fde047;border-radius:3px;padding:3px 6px;font-size:9px;margin-top:4px}
+  .warn{background:#fff7ed;border:1px solid #fed7aa;border-radius:3px;padding:3px 6px;font-size:9px;margin-top:4px}
+  .kbd{background:#e8edf5;border:1px solid #cbd5e1;border-radius:3px;padding:1px 4px;font-family:monospace;font-size:8.5px}
+  .full{grid-column:1/-1}
+  .divider{border:none;border-top:1px dashed #cbd5e1;margin:6px 0}
+  .footer{text-align:center;font-size:8.5px;color:#94a3b8;margin-top:8px;padding-top:6px;border-top:1px solid #e2e8f0}
+  ul{padding-left:12px;margin:2px 0}
+  li{margin-bottom:1.5px;font-size:9.5px}
+  @media print{
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .page{padding:8mm 10mm;width:100%}
+    .header{-webkit-print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>ICED SPDITS — User Technical Manual</h1>
+      <div class="subtitle">Secure Partner Data Intake, Tracing &amp; Interview Management System</div>
+    </div>
+    <div class="header-right">
+      <div>International Centre for Evaluation &amp; Development</div>
+      <div>ea.data.iced-eval.org</div>
+      <div>Version 1.0 — May 2026</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Login + Roles -->
+  <div class="grid">
+    <div class="section accent">
+      <div class="section-title" style="color:#1a3a6b"><span class="dot" style="background:#1a3a6b"></span>1. Accessing the System</div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Open <strong>ea.data.iced-eval.org</strong> in your browser.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Enter your <strong>email address</strong> and <strong>password</strong>, then click <em>Sign In</em>.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Alternatively click <em>Sign in with Microsoft</em> if your organisation uses Azure AD.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>First login:</strong> you will be prompted to <em>Set Your Password</em> before accessing any page.</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">If you forget your password, click <em>Forgot your password?</em> on the login page and follow the email link.</div></div>
+      <div class="note">Session expires after 30 min of inactivity — save your work regularly.</div>
+    </div>
+
+    <div class="section green">
+      <div class="section-title" style="color:#16a34a"><span class="dot" style="background:#16a34a"></span>2. User Roles &amp; Permissions</div>
+      <table>
+        <thead><tr><th>Role</th><th>Key Access</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-admin">System Admin</span></td><td>Full access — users, partners, uploads, all data, audit trail</td></tr>
+          <tr><td><span class="badge badge-partner">Impl. Partner</span></td><td>Upload participant lists, view own submissions</td></tr>
+          <tr><td><span class="badge badge-sup">Supervisor</span></td><td>Tracing queue, assign enumerators, create &amp; view own enumerators</td></tr>
+          <tr><td><span class="badge badge-enum">Enumerator</span></td><td>Record interview outcomes for assigned participants</td></tr>
+          <tr><td><span class="badge badge-tracer">Tracer</span></td><td>Tracing queue, update participant trace status, view contacts</td></tr>
+          <tr><td><span class="badge badge-comp">Compliance</span></td><td>Re-identification with mandatory reason logging</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ROW 2: User Mgmt + Partner Mgmt -->
+  <div class="grid">
+    <div class="section orange">
+      <div class="section-title" style="color:#ea580c"><span class="dot" style="background:#ea580c"></span>3. Managing Users <span style="font-weight:400;text-transform:none;font-size:9px">(Admin &amp; Supervisor)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>User Management</strong> (sidebar). Supervisors see <em>My Enumerators</em> instead.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Click <em>Add User / Add Enumerator</em>. Fill in name, email and phone. Assign a primary role.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">For supervisors with <strong>multiple partners</strong>, pick which partner the new enumerator belongs to.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Click <em>Create User</em>. No password is set — the user sets their own on first login.</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">To <strong>reset a password</strong>: click the <span class="kbd">🔑</span> icon → <em>Force Reset</em>. User will be prompted on next login.</div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-text">To assign a supervisor to <strong>multiple partners</strong>: edit the user → tick partners under <em>Additional Partners</em>.</div></div>
+    </div>
+
+    <div class="section purple">
+      <div class="section-title" style="color:#7c3aed"><span class="dot" style="background:#7c3aed"></span>4. Managing Partners <span style="font-weight:400;text-transform:none;font-size:9px">(Admin only)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Partners</strong> (sidebar) → click <em>Add Partner</em>.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Fill in the partner's <strong>name</strong>, unique <strong>code</strong>, contact details, and optional SFTP username / directory.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Save. The partner code is used as the upload folder name on the server.</div></div>
+      <hr class="divider">
+      <div class="section-title" style="color:#7c3aed;margin-top:2px"><span class="dot" style="background:#7c3aed"></span>5. Invitations <span style="font-weight:400;text-transform:none;font-size:9px">(Admin only)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Invitations</strong> → <em>New Invitation</em>. Enter the recipient's email and role.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">An email with a secure link is sent. The recipient clicks it to activate their account.</div></div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Uploads + Processing -->
+  <div class="grid">
+    <div class="section teal">
+      <div class="section-title" style="color:#0891b2"><span class="dot" style="background:#0891b2"></span>6. Uploading Participant Lists <span style="font-weight:400;text-transform:none;font-size:9px">(Partner)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">From the dashboard click <em>Upload File</em> or go to <strong>Uploads</strong>.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Select a <strong>CSV or XLSX</strong> file. Required columns: <em>full_name, national_id, phone, county, gender, age</em>.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Submit. The file is validated and queued. You will see the batch status update automatically.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>SFTP alternative:</strong> drop files into your designated SFTP folder — the system polls every 60 seconds.</div></div>
+      <div class="note">Files are stored under <code>/media/uploads/&lt;PARTNER_CODE&gt;/</code> on the server.</div>
+    </div>
+
+    <div class="section accent">
+      <div class="section-title" style="color:#1a3a6b"><span class="dot" style="background:#1a3a6b"></span>7. Approving &amp; Processing Uploads <span style="font-weight:400;text-transform:none;font-size:9px">(Admin)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Uploads</strong>. Pending batches show a yellow <em>Pending</em> badge.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Review the batch details. Click <em>Approve</em> to proceed or <em>Reject</em> with a reason.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">On approval, participants are <strong>pseudocoded</strong> (PSN-YYYY-NNNNNN) and direct identifiers are <strong>encrypted</strong> automatically.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Duplicates are flagged and merged; quasi-identifiers (county, gender, age) remain visible.</div></div>
+    </div>
+  </div>
+
+  <!-- ROW 4: Tracing + Assignments -->
+  <div class="grid">
+    <div class="section green">
+      <div class="section-title" style="color:#16a34a"><span class="dot" style="background:#16a34a"></span>8. Tracing Participants <span style="font-weight:400;text-transform:none;font-size:9px">(Tracer / Supervisor)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Tracing</strong>. Use the partner filter to narrow the queue.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Click <em>View Contacts</em> to see decrypted phone/ID numbers (auto-hidden after 60 seconds).</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Update the participant's trace status: <em>Located / Not Found / Deceased / Relocated</em>.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Add a note and save. The status change is logged in the audit trail.</div></div>
+    </div>
+
+    <div class="section yellow">
+      <div class="section-title" style="color:#ca8a04"><span class="dot" style="background:#ca8a04"></span>9. Assigning &amp; Interviewing <span style="font-weight:400;text-transform:none;font-size:9px">(Supervisor / Enumerator)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Supervisor — Assignments:</strong> Go to <em>Assignments</em>, select traced participants, choose an enumerator, click <em>Assign</em>.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Enumerator — Interviews:</strong> Go to <em>Interviews</em> to see your assigned list.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">For each participant record the outcome: <em>Completed / Refused / Unreachable / Callback</em>.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Add any relevant notes and save. The interview status is immediately visible to supervisors.</div></div>
+    </div>
+  </div>
+
+  <!-- ROW 5: Compliance + Audit -->
+  <div class="grid">
+    <div class="section red">
+      <div class="section-title" style="color:#dc2626"><span class="dot" style="background:#dc2626"></span>10. Re-identification &amp; Compliance <span style="font-weight:400;text-transform:none;font-size:9px">(Compliance / Admin)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Compliance</strong> in the sidebar.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Search for the participant by pseudocode (PSN-YYYY-NNNNNN).</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Enter a <strong>mandatory reason</strong> for re-identification (minimum 20 characters).</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Direct identifiers are displayed for <strong>60 seconds</strong> then automatically hidden.</div></div>
+      <div class="warn">Every re-identification access is logged with reason, IP address and session ID — it cannot be undone from the audit trail.</div>
+    </div>
+
+    <div class="section accent">
+      <div class="section-title" style="color:#1a3a6b"><span class="dot" style="background:#1a3a6b"></span>11. Audit Trail &amp; Notifications <span style="font-weight:400;text-transform:none;font-size:9px">(Admin)</span></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Audit</strong> in the sidebar. Every action in the system is recorded here — immutable, append-only.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Filter by user, action type, or date range to investigate specific events.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Notifications:</strong> click the 🔔 bell icon (top right) to view in-app alerts. Click <em>Mark all read</em> to clear.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Email alerts for key events are configured under <strong>Email Settings</strong> (sidebar → Admin section).</div></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <strong>ICED SPDITS</strong> — International Centre for Evaluation and Development &nbsp;|&nbsp; ea.data.iced-eval.org &nbsp;|&nbsp;
+    For support contact your system administrator &nbsp;|&nbsp; All data is encrypted and access is fully audited
+  </div>
+
+</div>
+</body>
+</html>

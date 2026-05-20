@@ -30,7 +30,12 @@ class UserCreateForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email', 'username', 'role', 'partner', 'supervisor', 'phone']
 
     def __init__(self, *args, **kwargs):
+        self.supervisor_mode = kwargs.pop('supervisor_mode', False)
         super().__init__(*args, **kwargs)
+        if self.supervisor_mode:
+            # Supervisors only create enumerators — hide admin-only fields
+            for f in ['role', 'supervisor', 'partner', 'username', 'extra_roles']:
+                self.fields.pop(f, None)
         self.helper = FormHelper()
         self.helper.form_tag = False
 

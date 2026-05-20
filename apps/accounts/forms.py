@@ -31,11 +31,25 @@ class UserCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.supervisor_mode = kwargs.pop('supervisor_mode', False)
+        self.supervisor_user = kwargs.pop('supervisor_user', None)
         super().__init__(*args, **kwargs)
         if self.supervisor_mode:
             # Supervisors only create enumerators — hide admin-only fields
-            for f in ['role', 'supervisor', 'partner', 'username', 'extra_roles']:
+            for f in ['role', 'supervisor', 'username', 'extra_roles']:
                 self.fields.pop(f, None)
+            # Limit partner choices to the supervisor's assigned partners
+            if self.supervisor_user:
+                assigned = self.supervisor_user.get_assigned_partners()
+                if assigned.count() == 1:
+                    # Single partner — hide the field, set as initial
+                    self.fields.pop('partner', None)
+                    self._single_partner = assigned.first()
+                else:
+                    self.fields['partner'].queryset = assigned
+                    self.fields['partner'].required = True
+                    self.fields['partner'].empty_label = 'Select partner…'
+            else:
+                self.fields.pop('partner', None)
         self.helper = FormHelper()
         self.helper.form_tag = False
 
@@ -48,13 +62,22 @@ class UserEditForm(forms.ModelForm):
         label='Additional Roles',
         help_text='Assign extra roles alongside the primary role above.',
     )
+    extra_partners = forms.ModelMultipleChoiceField(
+        queryset=None,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label='Additional Partners',
+        help_text='Extra implementing partners this supervisor can work across.',
+    )
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'role', 'partner', 'supervisor', 'phone', 'is_active']
+        fields = ['first_name', 'last_name', 'email', 'role', 'partner', 'supervisor', 'phone', 'is_active', 'extra_partners']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from .models import Partner
+        self.fields['extra_partners'].queryset = Partner.objects.filter(is_active=True).order_by('name')
         if self.instance and self.instance.pk:
             current_extra = list(
                 self.instance.extra_role_assignments.values_list('role', flat=True)

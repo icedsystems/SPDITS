@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import PasswordResetConfirmView as BasePasswordResetConfirmView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
@@ -302,6 +303,21 @@ class AdminPasswordResetView(AdminRequiredMixin, View):
                    description=f'{request.user.email} triggered forced password reset for {user.email}')
         messages.success(request, f'{user.get_full_name()} will be prompted to set a new password on their next login.')
         return redirect('accounts:user_list')
+
+
+class PasswordResetConfirmView(BasePasswordResetConfirmView):
+    """Extend Django's built-in view to clear force_password_change on success."""
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = '/accounts/password-reset/complete/'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # form.user is the user whose password was just set by super()
+        user = form.user
+        if getattr(user, 'force_password_change', False):
+            user.force_password_change = False
+            user.save(update_fields=['force_password_change'])
+        return response
 
 
 class PartnerListView(AdminRequiredMixin, ListView):

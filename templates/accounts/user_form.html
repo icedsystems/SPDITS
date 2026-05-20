@@ -64,12 +64,12 @@
               </div>
             </div>
             {% endif %}
-            {% if form.password %}
+            {% if not object %}
             <div class="col-12">
-              <label class="form-label fw-semibold small">Password</label>
-              {{ form.password.as_widget }}
-              <div class="form-text">{{ form.password.help_text }}</div>
-              {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors }}</div>{% endif %}
+              <div class="alert alert-info py-2 small mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                No password is set at creation. The user will be prompted to choose their own password the first time they log in.
+              </div>
             </div>
             {% endif %}
           </div>

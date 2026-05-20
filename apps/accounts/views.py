@@ -189,6 +189,15 @@ class UserCreateView(AdminOrSupervisorMixin, CreateView):
         if self._is_supervisor_mode():
             user.role = Role.ENUMERATOR
             user.supervisor = self.request.user
+            # username is hidden in supervisor mode — derive a unique one from email
+            if not user.username:
+                base = user.email.split('@')[0][:140]
+                candidate = base
+                suffix = 1
+                while CustomUser.objects.filter(username=candidate).exists():
+                    candidate = f'{base}{suffix}'
+                    suffix += 1
+                user.username = candidate
             # Partner: either chosen from form or auto from single-partner supervisor
             if 'partner' not in form.cleaned_data:
                 user.partner = getattr(form, '_single_partner', None) or self.request.user.partner

@@ -45,7 +45,6 @@ class InvitationListView(LoginRequiredMixin, ListView):
     model = Invitation
     template_name = 'invitations/invitation_list.html'
     context_object_name = 'invitations'
-    paginate_by = 25
 
     def get_queryset(self):
         return super().get_queryset().select_related('invited_by', 'partner')

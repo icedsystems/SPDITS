@@ -198,7 +198,25 @@ class UserCreateView(AdminOrSupervisorMixin, CreateView):
                 if role != user.role:
                     UserRole.objects.get_or_create(user=user, role=role)
         log_action(self.request, 'CREATE_USER', 'accounts', user.pk, description=f'Created user {user.email}')
-        messages.success(self.request, f'Enumerator {user.get_full_name()} created. They will be prompted to set their own password on first login.')
+        # Send welcome email so the new user knows they have an account and how to log in
+        try:
+            from django.core.mail import send_mail
+            from django.template.loader import render_to_string
+            request = self.request
+            login_url = request.build_absolute_uri('/accounts/login/')
+            ctx = {'user': user, 'login_url': login_url}
+            send_mail(
+                subject='[ICED SPDITS] Your account has been created',
+                message=render_to_string('emails/welcome_user.txt', ctx),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                html_message=render_to_string('emails/welcome_user.html', ctx),
+                fail_silently=False,
+            )
+            messages.success(self.request, f'User {user.get_full_name()} created and a welcome email has been sent to {user.email}.')
+        except Exception as e:
+            logger.exception(f'Welcome email failed for {user.email}: {e}')
+            messages.warning(self.request, f'User {user.get_full_name()} created, but the welcome email could not be sent ({e}). Please share the login link manually: /accounts/login/')
         return redirect(self.success_url)
 
 

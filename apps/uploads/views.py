@@ -113,10 +113,16 @@ class UploadApprovalView(LoginRequiredMixin, View):
             if action == 'approve':
                 batch.approve(request.user, notes)
                 from apps.processing.tasks import pseudocode_batch_participants
-                pseudocode_batch_participants.delay(batch.pk)
-                log_action(request, 'APPROVE_UPLOAD', 'uploads', batch.pk,
-                           description=f'Approved batch {batch.batch_id}')
-                messages.success(request, f'Batch {batch.batch_id} approved. Pseudocoding started.')
+                try:
+                    created = pseudocode_batch_participants(batch.pk)
+                    log_action(request, 'APPROVE_UPLOAD', 'uploads', batch.pk,
+                               description=f'Approved batch {batch.batch_id} — {created} participants created')
+                    messages.success(request, f'Batch {batch.batch_id} approved. {created} participants pseudocoded and added to the system.')
+                except Exception as exc:
+                    logger.error(f'Pseudocoding failed for batch {batch.batch_id}: {exc}')
+                    log_action(request, 'APPROVE_UPLOAD', 'uploads', batch.pk,
+                               description=f'Approved batch {batch.batch_id} but pseudocoding failed: {exc}')
+                    messages.warning(request, f'Batch {batch.batch_id} approved but participant creation failed: {exc}')
             else:
                 batch.reject(request.user, notes)
                 log_action(request, 'REJECT_UPLOAD', 'uploads', batch.pk,

@@ -66,6 +66,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'apps.audit.middleware.AuditMiddleware',
+    'apps.accounts.middleware.ForcePasswordChangeMiddleware',
     'apps.accounts.middleware.SessionTimeoutMiddleware',
 ]
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 
 admin.site.site_header = 'ICED SPDITS Administration'
 admin.site.site_title = 'SPDITS Admin'
@@ -23,6 +23,7 @@ urlpatterns = [
     path('notifications/', include('apps.notifications.urls', namespace='notifications')),
     path('dashboard/', include('apps.dashboards.urls', namespace='dashboards')),
     path('api/v1/', include('config.api_urls')),
+    path('manual/', TemplateView.as_view(template_name='manual/user_manual.html'), name='user_manual'),
     # Root redirect → dashboard
     path('', RedirectView.as_view(url='/dashboard/', permanent=False), name='home'),
 ]

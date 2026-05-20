@@ -97,10 +97,8 @@ class TracedQueueView(LoginRequiredMixin, ListView):
 class TracerContactView(LoginRequiredMixin, View):
     """Show decrypted contact details to tracers/supervisors/admins. Fully audited."""
 
-    ALLOWED_ROLES = ['system_admin', 'tracer', 'supervisor']
-
     def post(self, request, pk):
-        if request.user.role not in self.ALLOWED_ROLES:
+        if not request.user.can_view_contacts():
             messages.error(request, 'You do not have permission to view contact details.')
             return redirect('tracing:queue')
 

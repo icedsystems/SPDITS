@@ -43,6 +43,12 @@ class CustomUser(AbstractUser):
         'self', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='enumerators', limit_choices_to={'role': Role.SUPERVISOR}
     )
+    extra_partners = models.ManyToManyField(
+        'Partner', blank=True,
+        related_name='extra_supervisors',
+        verbose_name='Additional Partners',
+        help_text='Extra implementing partners this supervisor can work across.',
+    )
     phone = models.CharField(max_length=50, blank=True)
     is_invitation_accepted = models.BooleanField(default=False)
     azure_oid = models.CharField(max_length=255, blank=True, db_index=True)
@@ -84,6 +90,15 @@ class CustomUser(AbstractUser):
     def get_all_role_labels(self):
         role_map = dict(Role.choices)
         return [role_map.get(r, r) for r in self.get_all_roles()]
+
+    def get_assigned_partners(self):
+        """All partners a supervisor is linked to (primary + extra)."""
+        from django.db.models import Q
+        pks = set()
+        if self.partner_id:
+            pks.add(self.partner_id)
+        pks.update(self.extra_partners.values_list('pk', flat=True))
+        return Partner.objects.filter(pk__in=pks).order_by('name')
 
     def is_admin(self):
         return self.has_role(Role.SYSTEM_ADMIN)

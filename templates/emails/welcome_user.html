@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.header { background: linear-gradient(135deg, #1a2840, #1a3a6b); padding: 30px; text-align: center; }
+.header h1 { color: #fff; margin: 0; font-size: 22px; }
+.header p { color: rgba(255,255,255,0.7); margin: 5px 0 0; font-size: 13px; }
+.body { padding: 30px; }
+.body h2 { color: #1a2840; font-size: 18px; margin-top: 0; }
+.details { background: #f8f9fa; border-radius: 6px; padding: 15px; margin: 20px 0; }
+.details table { width: 100%; border-collapse: collapse; }
+.details td { padding: 5px 0; font-size: 14px; }
+.details td:first-child { color: #666; width: 40%; }
+.btn { display: block; width: fit-content; margin: 25px auto; padding: 14px 30px; background: #1a3a6b; color: #fff !important; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; }
+.info { background: #e0f2fe; border: 1px solid #0ea5e9; border-radius: 6px; padding: 12px 15px; font-size: 13px; color: #0c4a6e; margin-top: 20px; }
+.footer { background: #f8f9fa; padding: 15px 30px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+</style></head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>ICED SPDITS</h1>
+    <p>Secure Partner Data Intake System</p>
+  </div>
+  <div class="body">
+    <h2>Welcome, {{ user.first_name }}!</h2>
+    <p>An account has been created for you on the ICED SPDITS platform. You can now sign in using the details below.</p>
+    <div class="details">
+      <table>
+        <tr><td>Full Name:</td><td><strong>{{ user.get_full_name }}</strong></td></tr>
+        <tr><td>Email (Login):</td><td><strong>{{ user.email }}</strong></td></tr>
+        <tr><td>Role:</td><td><strong>{{ user.display_role }}</strong></td></tr>
+        {% if user.partner %}<tr><td>Organisation:</td><td>{{ user.partner.name }}</td></tr>{% endif %}
+        <tr><td>Login URL:</td><td><a href="{{ login_url }}">{{ login_url }}</a></td></tr>
+      </table>
+    </div>
+    <a href="{{ login_url }}" class="btn">Sign In to ICED SPDITS</a>
+    <div class="info">
+      🔒 <strong>First login:</strong> You will be asked to set your own password before you can access the system. Use your email address above to sign in and follow the prompt.
+    </div>
+  </div>
+  <div class="footer">
+    The International Centre for Evaluation and Development (ICED)<br>
+    This is an automated message — please do not reply.
+  </div>
+</div>
+</body>
+</html>

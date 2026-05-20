@@ -114,47 +114,80 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return self.request.user.is_admin()
 
 
-class UserListView(AdminRequiredMixin, ListView):
+class AdminOrSupervisorMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_admin() or self.request.user.is_supervisor()
+
+
+class UserListView(AdminOrSupervisorMixin, ListView):
     model = CustomUser
     template_name = 'accounts/user_list.html'
     context_object_name = 'users'
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related('partner')
-        q = self.request.GET.get('q')
-        role = self.request.GET.get('role')
-        if q:
-            qs = qs.filter(email__icontains=q) | qs.filter(first_name__icontains=q) | qs.filter(last_name__icontains=q)
-        if role:
-            qs = qs.filter(role=role)
+        user = self.request.user
+        if user.is_admin():
+            qs = CustomUser.objects.select_related('partner').all()
+            q = self.request.GET.get('q')
+            role = self.request.GET.get('role')
+            if q:
+                qs = qs.filter(email__icontains=q) | qs.filter(first_name__icontains=q) | qs.filter(last_name__icontains=q)
+            if role:
+                qs = qs.filter(role=role)
+        else:
+            # Supervisors see only their own enumerators
+            from .models import Role
+            qs = CustomUser.objects.select_related('partner').filter(
+                role=Role.ENUMERATOR, supervisor=user
+            )
+            q = self.request.GET.get('q')
+            if q:
+                qs = qs.filter(email__icontains=q) | qs.filter(first_name__icontains=q) | qs.filter(last_name__icontains=q)
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['roles'] = CustomUser.role.field.choices
+        ctx['is_supervisor_view'] = self.request.user.is_supervisor() and not self.request.user.is_admin()
         return ctx
 
 
-class UserCreateView(AdminRequiredMixin, CreateView):
+class UserCreateView(AdminOrSupervisorMixin, CreateView):
     model = CustomUser
     form_class = UserCreateForm
     template_name = 'accounts/user_form.html'
     success_url = '/accounts/users/'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['supervisor_mode'] = self.request.user.is_supervisor() and not self.request.user.is_admin()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['supervisor_mode'] = self.request.user.is_supervisor() and not self.request.user.is_admin()
+        return ctx
+
     def form_valid(self, form):
         import secrets
+        from .models import Role
         user = form.save(commit=False)
         user.set_password(secrets.token_urlsafe(20))
         user.force_password_change = True
+        if self.request.user.is_supervisor() and not self.request.user.is_admin():
+            user.role = Role.ENUMERATOR
+            user.supervisor = self.request.user
+            user.partner = self.request.user.partner
         user.save()
-        extra_roles = form.cleaned_data.get('extra_roles', [])
-        UserRole.objects.filter(user=user).delete()
-        for role in extra_roles:
-            if role != user.role:
-                UserRole.objects.get_or_create(user=user, role=role)
+        if self.request.user.is_admin():
+            extra_roles = form.cleaned_data.get('extra_roles', [])
+            UserRole.objects.filter(user=user).delete()
+            for role in extra_roles:
+                if role != user.role:
+                    UserRole.objects.get_or_create(user=user, role=role)
         log_action(self.request, 'CREATE_USER', 'accounts', user.pk, description=f'Created user {user.email}')
-        messages.success(self.request, f'User {user.email} created. They will be prompted to set their own password on first login.')
+        messages.success(self.request, f'Enumerator {user.get_full_name()} created. They will be prompted to set their own password on first login.')
         return redirect(self.success_url)
 
 

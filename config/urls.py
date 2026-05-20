@@ -24,6 +24,7 @@ urlpatterns = [
     path('dashboard/', include('apps.dashboards.urls', namespace='dashboards')),
     path('api/v1/', include('config.api_urls')),
     path('manual/', TemplateView.as_view(template_name='manual/user_manual.html'), name='user_manual'),
+    path('brochure/', TemplateView.as_view(template_name='manual/brochure.html'), name='brochure'),
     # Root redirect → dashboard
     path('', RedirectView.as_view(url='/dashboard/', permanent=False), name='home'),
 ]

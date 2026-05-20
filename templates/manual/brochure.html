@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ICED SPDITS — User Guide Brochure</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px}
+
+/* ── Sheet = one side of A4 landscape ── */
+.sheet{
+  width:297mm; height:210mm;
+  display:grid;
+  grid-template-columns:99mm 99mm 99mm;
+  background:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,.18);
+  overflow:hidden;
+}
+
+/* fold guides (visible on screen, not in print) */
+.sheet .panel{position:relative; overflow:hidden;}
+.sheet .panel+.panel{border-left:1px dashed #bbb}
+
+/* ─────────────────────  SIDE A  ───────────────────── */
+
+/* Panel A1 — Back cover / Contact strip */
+.a1{background:linear-gradient(175deg,#0f1f3d 0%,#1a3a6b 55%,#1e4d8c 100%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:0}
+.a1-top{padding:22px 20px 16px}
+.a1-logo{font-size:26px;font-weight:800;letter-spacing:-1px;color:#fff;line-height:1}
+.a1-logo span{color:#60a5fa}
+.a1-tagline{font-size:9.5px;color:#93c5fd;margin-top:6px;font-weight:400;line-height:1.5}
+.a1-divider{height:2px;background:linear-gradient(90deg,#60a5fa,transparent);margin:14px 0}
+.a1-contact{font-size:9px;color:#bfdbfe;line-height:2}
+.a1-contact strong{color:#fff;display:block;font-size:10px;margin-bottom:4px}
+.a1-contact a{color:#93c5fd;text-decoration:none}
+.a1-bottom{background:rgba(0,0,0,.25);padding:14px 20px}
+.a1-url{font-size:11px;font-weight:700;color:#60a5fa;letter-spacing:.5px}
+.a1-url-label{font-size:8.5px;color:#93c5fd;margin-top:2px}
+.a1-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.3);border-radius:20px;padding:4px 10px;margin-top:10px;font-size:8.5px;color:#bfdbfe}
+
+/* Panel A2 — Cover (centre fold, faces out) */
+.a2{background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 22px;text-align:center;position:relative}
+.a2::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#1a3a6b,#3b82f6)}
+.cover-icon{width:68px;height:68px;background:linear-gradient(135deg,#1a3a6b,#3b82f6);border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(26,58,107,.35)}
+.cover-icon svg{width:36px;height:36px;fill:none;stroke:#fff;stroke-width:1.8}
+.cover-title{font-size:22px;font-weight:800;color:#0f1f3d;letter-spacing:-1px;line-height:1.1}
+.cover-sub{font-size:10px;font-weight:500;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin:8px 0}
+.cover-desc{font-size:9.5px;color:#64748b;line-height:1.6;max-width:200px}
+.cover-divider{width:40px;height:3px;background:linear-gradient(90deg,#1a3a6b,#3b82f6);border-radius:2px;margin:14px auto}
+.cover-roles{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:14px}
+.crole{font-size:8px;font-weight:600;padding:2px 7px;border-radius:10px}
+.cr-admin{background:#fee2e2;color:#991b1b}
+.cr-partner{background:#dbeafe;color:#1d4ed8}
+.cr-sup{background:#fef9c3;color:#854d0e}
+.cr-enum{background:#dcfce7;color:#166534}
+.cr-tracer{background:#f0fdf4;color:#15803d}
+.cr-comp{background:#f3f4f6;color:#374151}
+.cover-org{font-size:8px;color:#94a3b8;margin-top:16px;line-height:1.6}
+.cover-org strong{color:#475569;display:block}
+
+/* Panel A3 — Getting Started */
+.a3{background:#f8fafc;padding:22px 18px;display:flex;flex-direction:column;gap:0}
+.panel-heading{font-size:13px;font-weight:800;color:#0f1f3d;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1a3a6b;display:flex;align-items:center;gap:6px}
+.ph-num{background:#1a3a6b;color:#fff;border-radius:5px;width:20px;height:20px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.step-circle{width:18px;height:18px;border-radius:50%;background:#dbeafe;color:#1d4ed8;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-body{font-size:9.5px;color:#334155;line-height:1.45}
+.step-body strong{color:#0f1f3d}
+.tip{background:#eff6ff;border-left:3px solid #3b82f6;border-radius:0 4px 4px 0;padding:5px 8px;font-size:8.5px;color:#1e40af;margin-top:6px;line-height:1.5}
+.warn-box{background:#fff7ed;border-left:3px solid #f97316;border-radius:0 4px 4px 0;padding:5px 8px;font-size:8.5px;color:#9a3412;margin-top:6px;line-height:1.5}
+.section-mini{margin-top:12px}
+.section-mini-title{font-size:10px;font-weight:700;color:#1a3a6b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+
+/* ─────────────────────  SIDE B  ───────────────────── */
+.b-panel{padding:20px 18px;display:flex;flex-direction:column}
+
+/* colours per panel */
+.b1-accent{border-top:5px solid #16a34a}
+.b2-accent{border-top:5px solid #7c3aed}
+.b3-accent{border-top:5px solid #dc2626}
+
+.b-heading{font-size:12px;font-weight:800;color:#0f1f3d;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:5px}
+.bh-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+.green-icon{background:#dcfce7;color:#16a34a}
+.purple-icon{background:#ede9fe;color:#7c3aed}
+.red-icon{background:#fee2e2;color:#dc2626}
+
+.flow-step{display:flex;gap:7px;margin-bottom:7px;align-items:flex-start}
+.flow-dot{width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.dot-green{background:#dcfce7;color:#15803d}
+.dot-purple{background:#ede9fe;color:#6d28d9}
+.dot-red{background:#fee2e2;color:#b91c1c}
+.flow-text{font-size:9.5px;color:#334155;line-height:1.4}
+.flow-text strong{color:#0f1f3d}
+
+.mini-table{width:100%;border-collapse:collapse;font-size:9px;margin-top:8px}
+.mini-table th{background:#f1f5f9;padding:4px 6px;text-align:left;font-weight:600;font-size:8.5px;color:#475569;text-transform:uppercase;letter-spacing:.3px}
+.mini-table td{padding:4px 6px;border-bottom:1px solid #f1f5f9;vertical-align:top;line-height:1.35}
+.mini-table tr:last-child td{border-bottom:none}
+
+.badge-pill{display:inline-block;padding:1px 6px;border-radius:10px;font-size:7.5px;font-weight:600}
+.bp-admin{background:#fee2e2;color:#991b1b}
+.bp-sup{background:#fef9c3;color:#854d0e}
+.bp-enum{background:#dcfce7;color:#166534}
+.bp-tracer{background:#dbeafe;color:#1e40af}
+.bp-comp{background:#f3f4f6;color:#374151}
+.bp-partner{background:#ede9fe;color:#6d28d9}
+
+.divider-h{border:none;border-top:1px dashed #cbd5e1;margin:10px 0}
+
+.cmd-box{background:#0f172a;border-radius:5px;padding:6px 8px;font-family:monospace;font-size:8px;color:#86efac;margin-top:6px;line-height:1.8}
+.cmd-box .comment{color:#64748b}
+
+@media print{
+  body{background:#fff;padding:0;gap:0}
+  .sheet{box-shadow:none;page-break-after:always}
+  .sheet .panel+.panel{border-left:none}
+  .fold-note{display:none}
+}
+
+.fold-note{font-size:10px;color:#64748b;text-align:center;font-style:italic}
+</style>
+</head>
+<body>
+
+<div class="fold-note">▼ SIDE A — Print this side first &nbsp;|&nbsp; Fold: right panel in first, then left panel over it (standard tri-fold)</div>
+
+<!-- ══════════════ SIDE A ══════════════ -->
+<div class="sheet" id="sideA">
+
+  <!-- A1: Back cover -->
+  <div class="panel a1">
+    <div class="a1-top">
+      <div class="a1-logo">ICED<span>SPDITS</span></div>
+      <div class="a1-tagline">Secure Partner Data Intake,<br>Tracing &amp; Interview Management System</div>
+      <div class="a1-divider"></div>
+      <div class="a1-contact">
+        <strong>System Access</strong>
+        🌐 <a href="https://ea.data.iced-eval.org">ea.data.iced-eval.org</a><br>
+        📧 Support via your system administrator
+      </div>
+      <div class="a1-divider"></div>
+      <div class="a1-contact">
+        <strong>International Centre for Evaluation &amp; Development</strong>
+        All data is encrypted at rest and in transit.<br>
+        Every access is logged in an immutable audit trail.
+      </div>
+      <div class="a1-badge">🔒 GDPR &amp; Data Protection Compliant</div>
+    </div>
+    <div class="a1-bottom">
+      <div class="a1-url">ea.data.iced-eval.org</div>
+      <div class="a1-url-label">Access the system from any modern browser</div>
+    </div>
+  </div>
+
+  <!-- A2: Cover (faces outward when folded) -->
+  <div class="panel a2">
+    <div class="cover-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="cover-title">ICED SPDITS</div>
+    <div class="cover-sub">User Guide</div>
+    <div class="cover-divider"></div>
+    <div class="cover-desc">A secure end-to-end platform for managing partner data intake, participant tracing and field interview workflows.</div>
+    <div class="cover-roles">
+      <span class="crole cr-admin">System Admin</span>
+      <span class="crole cr-partner">Impl. Partner</span>
+      <span class="crole cr-sup">Supervisor</span>
+      <span class="crole cr-enum">Enumerator</span>
+      <span class="crole cr-tracer">Tracer</span>
+      <span class="crole cr-comp">Compliance</span>
+    </div>
+    <div class="cover-org">
+      <strong>International Centre for Evaluation &amp; Development</strong>
+      Nairobi, Kenya &nbsp;·&nbsp; May 2026
+    </div>
+  </div>
+
+  <!-- A3: Getting Started -->
+  <div class="panel a3">
+    <div class="panel-heading"><div class="ph-num">1</div>Getting Started</div>
+
+    <div class="step-row">
+      <div class="step-circle">1</div>
+      <div class="step-body">Open <strong>ea.data.iced-eval.org</strong> in Chrome, Edge or Firefox.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-circle">2</div>
+      <div class="step-body">Enter your <strong>email address</strong> and <strong>password</strong> → click <em>Sign In</em>.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-circle">3</div>
+      <div class="step-body">Or click <strong>Sign in with Microsoft</strong> if your organisation uses Azure AD.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-circle">4</div>
+      <div class="step-body"><strong>First login:</strong> you will be taken to a <em>Set Your Password</em> page before any other access.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-circle">5</div>
+      <div class="step-body">Forgot your password? Click <em>Forgot your password?</em> on the login page and follow the email link.</div>
+    </div>
+
+    <div class="tip">💡 Sessions expire after <strong>30 minutes</strong> of inactivity for security. Save your work regularly.</div>
+
+    <div class="section-mini">
+      <div class="section-mini-title">Uploading Data (Partners)</div>
+      <div class="step-row">
+        <div class="step-circle">1</div>
+        <div class="step-body">Go to <strong>Uploads</strong> → click <em>Upload File</em>.</div>
+      </div>
+      <div class="step-row">
+        <div class="step-circle">2</div>
+        <div class="step-body">Select a <strong>CSV or XLSX</strong> file. Required columns: <em>full_name, national_id, phone, county, gender, age</em>.</div>
+      </div>
+      <div class="step-row">
+        <div class="step-circle">3</div>
+        <div class="step-body">Submit — the batch is queued for admin review. You will see the status update automatically.</div>
+      </div>
+      <div class="tip">📁 SFTP alternative: drop files in your designated SFTP folder — the system picks them up every 60 seconds.</div>
+    </div>
+  </div>
+
+</div><!-- end Side A -->
+
+<div class="fold-note">▲ SIDE A &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ▼ SIDE B — Flip the sheet and print on the reverse</div>
+
+<!-- ══════════════ SIDE B ══════════════ -->
+<div class="sheet" id="sideB">
+
+  <!-- B1: Tracing & Interviews -->
+  <div class="panel b-panel b1-accent">
+    <div class="b-heading">
+      <div class="bh-icon green-icon">🔍</div>
+      Tracing &amp; Interviews
+    </div>
+
+    <div style="font-size:9px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Tracing Queue — Tracers &amp; Supervisors</div>
+    <div class="flow-step"><div class="flow-dot dot-green">1</div><div class="flow-text">Go to <strong>Tracing</strong> in the sidebar. Use the partner filter to narrow the queue.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-green">2</div><div class="flow-text">Click <strong>View Contacts</strong> to see decrypted phone / ID numbers. Data auto-hides after <strong>60 seconds</strong>.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-green">3</div><div class="flow-text">Update status: <em>Located / Not Found / Deceased / Relocated</em>. Add a note and save.</div></div>
+
+    <div class="divider-h"></div>
+
+    <div style="font-size:9px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Assigning — Supervisors</div>
+    <div class="flow-step"><div class="flow-dot dot-green">1</div><div class="flow-text">Go to <strong>Assignments</strong>. Select traced participants from the list.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-green">2</div><div class="flow-text">Choose an enumerator from your team → click <em>Assign</em>.</div></div>
+
+    <div class="divider-h"></div>
+
+    <div style="font-size:9px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Recording Outcomes — Enumerators</div>
+    <div class="flow-step"><div class="flow-dot dot-green">1</div><div class="flow-text">Go to <strong>Interviews</strong> to see your assigned participants.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-green">2</div><div class="flow-text">For each person record: <em>Completed / Refused / Unreachable / Callback</em>. Add notes and save.</div></div>
+
+    <div class="tip">✅ Interview outcomes are immediately visible to supervisors in real time.</div>
+  </div>
+
+  <!-- B2: User & Partner Management -->
+  <div class="panel b-panel b2-accent">
+    <div class="b-heading">
+      <div class="bh-icon purple-icon">👥</div>
+      Users, Partners &amp; Uploads
+    </div>
+
+    <div style="font-size:9px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">User Roles at a Glance</div>
+    <table class="mini-table">
+      <thead><tr><th>Role</th><th>Primary Access</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge-pill bp-admin">Admin</span></td><td>Full system — users, partners, all data, audit</td></tr>
+        <tr><td><span class="badge-pill bp-partner">Partner</span></td><td>Upload lists, view own submissions</td></tr>
+        <tr><td><span class="badge-pill bp-sup">Supervisor</span></td><td>Trace, assign, create &amp; view own enumerators</td></tr>
+        <tr><td><span class="badge-pill bp-enum">Enumerator</span></td><td>Record interview outcomes for assigned participants</td></tr>
+        <tr><td><span class="badge-pill bp-tracer">Tracer</span></td><td>Tracing queue, status updates, view contacts</td></tr>
+        <tr><td><span class="badge-pill bp-comp">Compliance</span></td><td>Re-identification with mandatory reason logging</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider-h"></div>
+
+    <div style="font-size:9px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Creating a User — Admin</div>
+    <div class="flow-step"><div class="flow-dot dot-purple">1</div><div class="flow-text"><strong>User Management</strong> → <em>Add User</em>. Fill name, email, phone, role.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-purple">2</div><div class="flow-text">No password needed — user sets their own on first login.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-purple">3</div><div class="flow-text">To reset: click <strong>🔑</strong> next to the user → <em>Force Reset</em>.</div></div>
+
+    <div class="divider-h"></div>
+
+    <div style="font-size:9px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Approving Uploads — Admin</div>
+    <div class="flow-step"><div class="flow-dot dot-purple">1</div><div class="flow-text">Go to <strong>Uploads</strong>. Pending batches show a yellow badge.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-purple">2</div><div class="flow-text">Review → <em>Approve</em>. Participants are pseudocoded and direct identifiers are encrypted automatically.</div></div>
+  </div>
+
+  <!-- B3: Compliance & Audit -->
+  <div class="panel b-panel b3-accent">
+    <div class="b-heading">
+      <div class="bh-icon red-icon">🔐</div>
+      Compliance &amp; Audit
+    </div>
+
+    <div style="font-size:9px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Re-identification — Compliance / Admin</div>
+    <div class="flow-step"><div class="flow-dot dot-red">1</div><div class="flow-text">Go to <strong>Compliance</strong> in the sidebar.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-red">2</div><div class="flow-text">Search by pseudocode (e.g. <em>PSN-2025-000123</em>).</div></div>
+    <div class="flow-step"><div class="flow-dot dot-red">3</div><div class="flow-text">Enter a <strong>mandatory reason</strong> (min. 20 characters) and submit.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-red">4</div><div class="flow-text">Direct identifiers (name, ID, phone) are shown for <strong>60 seconds</strong> then auto-hidden.</div></div>
+
+    <div class="warn-box">⚠️ Every re-identification is permanently logged with your reason, IP address and session ID. This cannot be undone.</div>
+
+    <div class="divider-h"></div>
+
+    <div style="font-size:9px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Audit Trail — Admin</div>
+    <div class="flow-step"><div class="flow-dot dot-red">1</div><div class="flow-text">Go to <strong>Audit</strong>. Every action in the system is recorded here — immutable and append-only.</div></div>
+    <div class="flow-step"><div class="flow-dot dot-red">2</div><div class="flow-text">Filter by <em>user, action type</em> or <em>date range</em> to investigate specific events.</div></div>
+
+    <div class="divider-h"></div>
+
+    <div style="font-size:9px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Key Security Features</div>
+    <table class="mini-table">
+      <tbody>
+        <tr><td>🔒</td><td>Direct identifiers encrypted with Fernet AES</td></tr>
+        <tr><td>🆔</td><td>Pseudocodes replace real names in all workflows</td></tr>
+        <tr><td>⏱️</td><td>Auto session logout after 30 min inactivity</td></tr>
+        <tr><td>📋</td><td>Immutable audit log for every action</td></tr>
+        <tr><td>👁️</td><td>Contact data auto-hidden after 60 seconds</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- end Side B -->
+
+<div class="fold-note">Print at 100% scale on A4 landscape paper &nbsp;·&nbsp; Ctrl+P → More settings → Landscape → Scale 100% → No margins</div>
+
+</body>
+</html>

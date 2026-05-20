@@ -50,14 +50,25 @@
   .footer{text-align:center;font-size:8.5px;color:#94a3b8;margin-top:8px;padding-top:6px;border-top:1px solid #e2e8f0}
   ul{padding-left:12px;margin:2px 0}
   li{margin-bottom:1.5px;font-size:9.5px}
+  .download-bar{width:210mm;margin:0 auto 8px;display:flex;justify-content:flex-end}
+  .btn-pdf{background:linear-gradient(135deg,#1a2840 0%,#1a3a6b 100%);color:#fff;border:none;border-radius:5px;padding:6px 14px;font-size:10px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.3px;text-decoration:none}
+  .btn-pdf:hover{opacity:.88}
   @media print{
     body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .page{padding:8mm 10mm;width:100%}
     .header{-webkit-print-color-adjust:exact}
+    .download-bar{display:none}
   }
 </style>
 </head>
 <body>
+
+<div class="download-bar">
+  <button class="btn-pdf" onclick="window.print()">
+    &#128196; Download PDF
+  </button>
+</div>
+
 <div class="page">
 
   <!-- HEADER -->
@@ -79,9 +90,8 @@
       <div class="section-title" style="color:#1a3a6b"><span class="dot" style="background:#1a3a6b"></span>1. Accessing the System</div>
       <div class="step"><div class="step-num">1</div><div class="step-text">Open <strong>ea.data.iced-eval.org</strong> in your browser.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-text">Enter your <strong>email address</strong> and <strong>password</strong>, then click <em>Sign In</em>.</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text">Alternatively click <em>Sign in with Microsoft</em> if your organisation uses Azure AD.</div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>First login:</strong> you will be prompted to <em>Set Your Password</em> before accessing any page.</div></div>
-      <div class="step"><div class="step-num">5</div><div class="step-text">If you forget your password, click <em>Forgot your password?</em> on the login page and follow the email link.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>First login:</strong> you will be prompted to <em>Set Your Password</em> before accessing any page.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">If you forget your password, click <em>Forgot your password?</em> on the login page and follow the email link.</div></div>
       <div class="note">Session expires after 30 min of inactivity — save your work regularly.</div>
     </div>
 
@@ -109,7 +119,7 @@
       <div class="step"><div class="step-num">2</div><div class="step-text">Click <em>Add User / Add Enumerator</em>. Fill in name, email and phone. Assign a primary role.</div></div>
       <div class="step"><div class="step-num">3</div><div class="step-text">For supervisors with <strong>multiple partners</strong>, pick which partner the new enumerator belongs to.</div></div>
       <div class="step"><div class="step-num">4</div><div class="step-text">Click <em>Create User</em>. No password is set — the user sets their own on first login.</div></div>
-      <div class="step"><div class="step-num">5</div><div class="step-text">To <strong>reset a password</strong>: click the <span class="kbd">🔑</span> icon → <em>Force Reset</em>. User will be prompted on next login.</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">To <strong>reset a password</strong>: click the <span class="kbd">&#128273;</span> icon → <em>Force Reset</em>. User will be prompted on next login.</div></div>
       <div class="step"><div class="step-num">6</div><div class="step-text">To assign a supervisor to <strong>multiple partners</strong>: edit the user → tick partners under <em>Additional Partners</em>.</div></div>
     </div>
 
@@ -117,7 +127,7 @@
       <div class="section-title" style="color:#7c3aed"><span class="dot" style="background:#7c3aed"></span>4. Managing Partners <span style="font-weight:400;text-transform:none;font-size:9px">(Admin only)</span></div>
       <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Partners</strong> (sidebar) → click <em>Add Partner</em>.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-text">Fill in the partner's <strong>name</strong>, unique <strong>code</strong>, contact email, contact name, phone, and address.</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text">Save. The partner code is used as the upload folder name on the server.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Click <em>Save</em> to create the partner.</div></div>
       <hr class="divider">
       <div class="section-title" style="color:#7c3aed;margin-top:2px"><span class="dot" style="background:#7c3aed"></span>5. Invitations <span style="font-weight:400;text-transform:none;font-size:9px">(Admin only)</span></div>
       <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Invitations</strong> → <em>New Invitation</em>. Enter the recipient's email and role.</div></div>
@@ -132,7 +142,6 @@
       <div class="step"><div class="step-num">1</div><div class="step-text">From the dashboard click <em>Upload File</em> or go to <strong>Uploads</strong>.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-text">Select a <strong>CSV or XLSX</strong> file. Required columns: <em>full_name, national_id, phone, county, gender, age</em>.</div></div>
       <div class="step"><div class="step-num">3</div><div class="step-text">Submit. The file is validated and queued. You will see the batch status update automatically.</div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>SFTP alternative:</strong> drop files into your designated SFTP folder — the system polls every 60 seconds.</div></div>
       <div class="note">Files are stored under <code>/media/uploads/&lt;PARTNER_CODE&gt;/</code> on the server.</div>
     </div>
 
@@ -151,7 +160,7 @@
       <div class="section-title" style="color:#16a34a"><span class="dot" style="background:#16a34a"></span>8. Tracing Participants <span style="font-weight:400;text-transform:none;font-size:9px">(Tracer / Supervisor)</span></div>
       <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Tracing</strong>. Use the partner filter to narrow the queue.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-text">Click <em>View Contacts</em> to see decrypted phone/ID numbers (auto-hidden after 60 seconds).</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text">Update the participant's trace status: <em>Located / Not Found / Deceased / Relocated</em>.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Update the participant's trace status: <em>Located / Not Found / Relocated</em>.</div></div>
       <div class="step"><div class="step-num">4</div><div class="step-text">Add a note and save. The status change is logged in the audit trail.</div></div>
     </div>
 
@@ -179,7 +188,7 @@
       <div class="section-title" style="color:#1a3a6b"><span class="dot" style="background:#1a3a6b"></span>11. Audit Trail &amp; Notifications <span style="font-weight:400;text-transform:none;font-size:9px">(Admin)</span></div>
       <div class="step"><div class="step-num">1</div><div class="step-text">Go to <strong>Audit</strong> in the sidebar. Every action in the system is recorded here — immutable, append-only.</div></div>
       <div class="step"><div class="step-num">2</div><div class="step-text">Filter by user, action type, or date range to investigate specific events.</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Notifications:</strong> click the 🔔 bell icon (top right) to view in-app alerts. Click <em>Mark all read</em> to clear.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Notifications:</strong> click the &#128276; bell icon (top right) to view in-app alerts. Click <em>Mark all read</em> to clear.</div></div>
       <div class="step"><div class="step-num">4</div><div class="step-text">Email alerts for key events are configured under <strong>Email Settings</strong> (sidebar → Admin section).</div></div>
     </div>
   </div>

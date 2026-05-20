@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView
 
+from apps.accounts.models import Partner
 from apps.audit.utils import log_action
 from apps.participants.models import Participant, ParticipantStatus
 from .forms import TracingUpdateForm
@@ -29,12 +30,19 @@ class TracingQueueView(LoginRequiredMixin, ListView):
         q = self.request.GET.get('q')
         if q:
             qs = qs.filter(pseudo_code__icontains=q)
+        partner_id = self.request.GET.get('partner')
+        if partner_id and not (user.is_partner() and user.partner):
+            qs = qs.filter(partner_id=partner_id)
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['form'] = TracingUpdateForm()
         ctx['update_url'] = 'tracing:update'
+        user = self.request.user
+        if not (user.is_partner() and user.partner):
+            ctx['partners'] = Partner.objects.filter(is_active=True).order_by('name')
+        ctx['selected_partner'] = self.request.GET.get('partner', '')
         return ctx
 
 

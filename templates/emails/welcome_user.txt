@@ -7,14 +7,15 @@ Your account details:
   Email     : {{ user.email }}
   Role      : {{ user.display_role }}{% if user.partner %}
   Organisation: {{ user.partner.name }}{% endif %}
-  Login URL : {{ login_url }}
 
-FIRST LOGIN — IMPORTANT:
-When you sign in for the first time, you will be prompted to set your own
-password before you can access any part of the system. Use your email address
-above to sign in, then follow the on-screen instructions.
+ACTION REQUIRED — Set your password:
+Click the link below to choose your password and access the system.
 
-Sign in here: {{ login_url }}
+  {{ setup_url }}
+
+This link can only be used ONCE and will expire after a short time.
+If it has expired, use the "Forgot Password" link on the login page
+to request a new one: https://ea.data.iced-eval.org/accounts/login/
 
 ---
 The International Centre for Evaluation and Development (ICED)

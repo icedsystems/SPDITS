@@ -143,10 +143,10 @@ class UserCreateView(AdminRequiredMixin, CreateView):
     success_url = '/accounts/users/'
 
     def form_valid(self, form):
+        import secrets
         user = form.save(commit=False)
-        password = form.cleaned_data.get('password')
-        if password:
-            user.set_password(password)
+        user.set_password(secrets.token_urlsafe(20))
+        user.force_password_change = True
         user.save()
         extra_roles = form.cleaned_data.get('extra_roles', [])
         UserRole.objects.filter(user=user).delete()
@@ -154,7 +154,7 @@ class UserCreateView(AdminRequiredMixin, CreateView):
             if role != user.role:
                 UserRole.objects.get_or_create(user=user, role=role)
         log_action(self.request, 'CREATE_USER', 'accounts', user.pk, description=f'Created user {user.email}')
-        messages.success(self.request, f'User {user.email} created successfully.')
+        messages.success(self.request, f'User {user.email} created. They will be prompted to set their own password on first login.')
         return redirect(self.success_url)
 
 
@@ -174,6 +174,33 @@ class UserEditView(AdminRequiredMixin, UpdateView):
         log_action(self.request, 'EDIT_USER', 'accounts', user.pk, description=f'Edited user {user.email}')
         messages.success(self.request, 'User updated successfully.')
         return redirect(self.success_url)
+
+
+class SetPasswordView(LoginRequiredMixin, View):
+    """Shown to users with force_password_change=True. Must complete before accessing anything."""
+    template_name = 'accounts/set_password.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        p1 = request.POST.get('new_password1', '').strip()
+        p2 = request.POST.get('new_password2', '').strip()
+        if not p1 or len(p1) < 8:
+            messages.error(request, 'Password must be at least 8 characters.')
+            return render(request, self.template_name)
+        if p1 != p2:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, self.template_name)
+        request.user.set_password(p1)
+        request.user.force_password_change = False
+        request.user.save(update_fields=['password', 'force_password_change'])
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, request.user)
+        log_action(request, 'SET_OWN_PASSWORD', 'accounts', request.user.pk,
+                   description=f'{request.user.email} set their own password on first login')
+        messages.success(request, 'Password set successfully. Welcome to ICED SPDITS.')
+        return redirect('dashboards:home')
 
 
 class AdminPasswordResetView(AdminRequiredMixin, View):

@@ -86,14 +86,17 @@
       </a>
       {% endif %}
 
-      {% if is_admin %}
+      {% if is_admin or is_supervisor %}
       <hr class="border-secondary mx-3">
+      {% if is_admin %}
       <a href="{% url 'invitations:list' %}" class="list-group-item list-group-item-action bg-transparent text-white {% block nav_invitations %}{% endblock %}">
         <i class="bi bi-envelope-plus me-2"></i> Invitations
       </a>
+      {% endif %}
       <a href="{% url 'accounts:user_list' %}" class="list-group-item list-group-item-action bg-transparent text-white {% block nav_users %}{% endblock %}">
-        <i class="bi bi-person-gear me-2"></i> User Management
+        <i class="bi bi-person-gear me-2"></i> {% if is_supervisor and not is_admin %}My Enumerators{% else %}User Management{% endif %}
       </a>
+      {% if is_admin %}
       <a href="{% url 'accounts:partner_list' %}" class="list-group-item list-group-item-action bg-transparent text-white {% block nav_partners %}{% endblock %}">
         <i class="bi bi-building me-2"></i> Partners
       </a>
@@ -103,6 +106,7 @@
       <a href="{% url 'notifications:email_config' %}" class="list-group-item list-group-item-action bg-transparent text-white {% block nav_email_config %}{% endblock %}">
         <i class="bi bi-envelope-gear me-2"></i> Email Settings
       </a>
+      {% endif %}
       {% endif %}
     </div>
   </div>

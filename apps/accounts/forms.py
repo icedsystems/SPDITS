@@ -90,7 +90,7 @@ class UserEditForm(forms.ModelForm):
 class PartnerForm(forms.ModelForm):
     class Meta:
         model = Partner
-        fields = ['name', 'code', 'contact_email', 'contact_name', 'phone', 'address', 'sftp_username', 'sftp_directory', 'is_active']
+        fields = ['name', 'code', 'contact_email', 'contact_name', 'phone', 'address', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

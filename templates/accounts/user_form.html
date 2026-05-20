@@ -22,6 +22,7 @@
           <div class="alert alert-danger">{{ form.non_field_errors }}</div>
           {% endif %}
 
+          <!-- Basic Info -->
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label fw-semibold small">First Name</label>
@@ -46,20 +47,26 @@
             </div>
             {% endif %}
             <div class="col-md-6">
-              <label class="form-label fw-semibold small">Partner</label>
+              <label class="form-label fw-semibold small">Phone</label>
+              {{ form.phone.as_widget }}
+              {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors }}</div>{% endif %}
+            </div>
+            {% if form.partner %}
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">
+                Partner{% if supervisor_mode %} <span class="text-danger">*</span>{% endif %}
+              </label>
               {{ form.partner.as_widget }}
               {% if form.partner.errors %}<div class="text-danger small">{{ form.partner.errors }}</div>{% endif %}
             </div>
+            {% endif %}
+            {% if form.supervisor %}
             <div class="col-md-6">
               <label class="form-label fw-semibold small">Supervisor</label>
               {{ form.supervisor.as_widget }}
               {% if form.supervisor.errors %}<div class="text-danger small">{{ form.supervisor.errors }}</div>{% endif %}
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold small">Phone</label>
-              {{ form.phone.as_widget }}
-              {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors }}</div>{% endif %}
-            </div>
+            {% endif %}
             {% if form.is_active %}
             <div class="col-md-6 d-flex align-items-center pt-4">
               <div class="form-check">
@@ -79,14 +86,15 @@
           </div>
 
           {% if supervisor_mode %}
-          <!-- Supervisor mode: role is fixed to Enumerator -->
+          <!-- Supervisor creating an enumerator: role is fixed -->
           <hr class="my-4">
           <div class="alert alert-info py-2 small mb-0">
             <i class="bi bi-person-badge me-1"></i>
             This account will be created as an <strong>Enumerator</strong> and automatically assigned to your team.
           </div>
+
           {% else %}
-          <!-- Primary Role -->
+          <!-- Admin: full role + additional roles section -->
           <hr class="my-4">
           <h6 class="fw-bold mb-3"><i class="bi bi-person-badge me-2 text-primary"></i>Role Assignment</h6>
           <div class="row g-3">
@@ -99,6 +107,7 @@
           </div>
 
           <!-- Additional Roles -->
+          {% if form.extra_roles %}
           <div class="card mt-3 border-primary-subtle">
             <div class="card-header bg-primary-subtle py-2">
               <h6 class="mb-0 fw-bold small text-primary"><i class="bi bi-layers me-1"></i>Additional Roles</h6>
@@ -120,9 +129,34 @@
           </div>
           {% endif %}
 
+          <!-- Additional Partners (shown when editing a supervisor) -->
+          {% if form.extra_partners %}
+          <div class="card mt-3 border-success-subtle">
+            <div class="card-header bg-success-subtle py-2">
+              <h6 class="mb-0 fw-bold small text-success"><i class="bi bi-building me-1"></i>Additional Partners</h6>
+            </div>
+            <div class="card-body py-3">
+              <p class="text-muted small mb-3">{{ form.extra_partners.help_text }}</p>
+              <div class="row g-2">
+                {% for choice in form.extra_partners %}
+                <div class="col-md-4">
+                  <div class="form-check">
+                    {{ choice.tag }}
+                    <label class="form-check-label small" for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% if form.extra_partners.errors %}<div class="text-danger small mt-2">{{ form.extra_partners.errors }}</div>{% endif %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% endif %}
+
           <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-check-lg me-1"></i>{% if object %}Save Changes{% else %}Create User{% endif %}
+              <i class="bi bi-check-lg me-1"></i>{% if object %}Save Changes{% else %}{% if supervisor_mode %}Add Enumerator{% else %}Create User{% endif %}{% endif %}
             </button>
             <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
           </div>

@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}Contact Details — {{ participant.pseudo_code }}{% endblock %}
+{% block page_title %}Tracing Queue{% endblock %}
+{% block nav_tracing %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Contact Details</h4>
+    <p class="text-muted small">
+      <span class="pseudocode">{{ participant.pseudo_code }}</span> &bull;
+      {{ participant.partner.name }} &bull;
+      <span class="badge bg-{{ participant.get_status_badge }}">{{ participant.get_status_display }}</span>
+    </p>
+  </div>
+  <a href="{% url 'tracing:queue' %}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Queue
+  </a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+
+    <div class="alert alert-warning d-flex align-items-start gap-2 py-2">
+      <i class="bi bi-shield-exclamation fs-5 mt-1"></i>
+      <div class="small">
+        <strong>This access has been logged.</strong> Contact details are visible for
+        <strong id="countdown">60</strong> seconds then automatically hidden.
+        Handle this information with care.
+      </div>
+    </div>
+
+    <div class="card" id="contact-card">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-person-lines-fill me-2"></i>Participant Contacts</h6>
+        <span class="badge bg-light text-primary">Tracing use only</span>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless table-sm mb-0">
+          {% if contacts.name %}
+          <tr>
+            <th class="text-muted" style="width:35%"><i class="bi bi-person me-1"></i>Full Name</th>
+            <td class="fw-semibold">{{ contacts.name }}</td>
+          </tr>
+          {% endif %}
+          {% if contacts.phone %}
+          <tr>
+            <th class="text-muted"><i class="bi bi-telephone me-1"></i>Phone</th>
+            <td>
+              <a href="tel:{{ contacts.phone }}" class="fw-semibold text-decoration-none">
+                {{ contacts.phone }}
+              </a>
+            </td>
+          </tr>
+          {% endif %}
+          {% if contacts.alt_phone %}
+          <tr>
+            <th class="text-muted"><i class="bi bi-telephone-forward me-1"></i>Alt. Phone</th>
+            <td>
+              <a href="tel:{{ contacts.alt_phone }}" class="text-decoration-none">
+                {{ contacts.alt_phone }}
+              </a>
+            </td>
+          </tr>
+          {% endif %}
+          {% if contacts.email %}
+          <tr>
+            <th class="text-muted"><i class="bi bi-envelope me-1"></i>Email</th>
+            <td>{{ contacts.email }}</td>
+          </tr>
+          {% endif %}
+          {% if contacts.national_id %}
+          <tr>
+            <th class="text-muted"><i class="bi bi-card-text me-1"></i>National ID</th>
+            <td>{{ contacts.national_id }}</td>
+          </tr>
+          {% endif %}
+          {% if contacts.address %}
+          <tr>
+            <th class="text-muted"><i class="bi bi-geo-alt me-1"></i>Address</th>
+            <td>{{ contacts.address }}</td>
+          </tr>
+          {% endif %}
+          {% if not contacts.name and not contacts.phone and not contacts.alt_phone and not contacts.email and not contacts.address %}
+          <tr>
+            <td colspan="2" class="text-muted text-center py-3">
+              <i class="bi bi-exclamation-circle me-1"></i>
+              No contact details were provided for this participant.
+            </td>
+          </tr>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header"><h6 class="mb-0 fw-bold">Quasi-Identifier Data</h6></div>
+      <div class="card-body">
+        <table class="table table-borderless table-sm mb-0">
+          {% for k, v in participant.data.items %}
+          <tr>
+            <th class="text-muted text-capitalize" style="width:35%">{{ k|title }}</th>
+            <td>{{ v|default:'—' }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="2" class="text-muted">No data available.</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+      <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
+        <i class="bi bi-pencil-square me-1"></i>Update Tracing Status
+      </button>
+      <a href="{% url 'tracing:queue' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Queue
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'tracing:update' participant.pk %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold">Update Tracing — <span class="pseudocode">{{ participant.pseudo_code }}</span></h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">New Status</label>
+            <select name="new_status" class="form-select" required>
+              <option value="tracing">Tracing (in progress)</option>
+              <option value="traced">Traced (found)</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Contact Method</label>
+            <select name="contact_method" class="form-select">
+              <option value="">—</option>
+              <option value="phone">Phone</option>
+              <option value="visit">Physical Visit</option>
+              <option value="sms">SMS</option>
+              <option value="email">Email</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Location Found</label>
+            <input type="text" name="location_found" class="form-control" placeholder="Village, area…">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Notes</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Tracing notes…"></textarea>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" name="contact_attempted" class="form-check-input" id="ca_contact">
+            <label class="form-check-label small" for="ca_contact">Contact attempted</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  var seconds = 60;
+  var el = document.getElementById('countdown');
+  var card = document.getElementById('contact-card');
+  var timer = setInterval(function () {
+    seconds--;
+    if (el) el.textContent = seconds;
+    if (seconds <= 0) {
+      clearInterval(timer);
+      if (card) {
+        card.innerHTML = '<div class="card-body text-center text-muted py-4">' +
+          '<i class="bi bi-eye-slash display-5 d-block mb-2"></i>' +
+          'Contact details hidden for security. <a href="{% url 'tracing:queue' %}">Return to queue</a>.' +
+          '</div>';
+      }
+    }
+  }, 1000);
+</script>
+{% endblock %}

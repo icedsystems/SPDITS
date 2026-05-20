@@ -17,8 +17,6 @@ class CustomLoginForm(AuthenticationForm):
 
 
 class UserCreateForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(), required=False,
-                                help_text='Leave blank for Microsoft OAuth users.')
     extra_roles = forms.MultipleChoiceField(
         choices=Role.choices,
         required=False,
@@ -29,7 +27,7 @@ class UserCreateForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'username', 'role', 'partner', 'supervisor', 'phone', 'password']
+        fields = ['first_name', 'last_name', 'email', 'username', 'role', 'partner', 'supervisor', 'phone']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

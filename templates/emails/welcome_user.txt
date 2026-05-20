@@ -1,0 +1,21 @@
+Welcome to ICED SPDITS, {{ user.first_name }}!
+
+An account has been created for you on the ICED SPDITS platform.
+
+Your account details:
+  Full Name : {{ user.get_full_name }}
+  Email     : {{ user.email }}
+  Role      : {{ user.display_role }}{% if user.partner %}
+  Organisation: {{ user.partner.name }}{% endif %}
+  Login URL : {{ login_url }}
+
+FIRST LOGIN — IMPORTANT:
+When you sign in for the first time, you will be prompted to set your own
+password before you can access any part of the system. Use your email address
+above to sign in, then follow the on-screen instructions.
+
+Sign in here: {{ login_url }}
+
+---
+The International Centre for Evaluation and Development (ICED)
+This is an automated message — please do not reply.

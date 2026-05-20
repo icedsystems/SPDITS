@@ -19,6 +19,13 @@ class CustomLoginForm(AuthenticationForm):
 class UserCreateForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(), required=False,
                                 help_text='Leave blank for Microsoft OAuth users.')
+    extra_roles = forms.MultipleChoiceField(
+        choices=Role.choices,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label='Additional Roles',
+        help_text='Assign extra roles alongside the primary role above.',
+    )
 
     class Meta:
         model = CustomUser
@@ -27,31 +34,31 @@ class UserCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Row(Column('first_name'), Column('last_name')),
-            Row(Column('email'), Column('username')),
-            Row(Column('role'), Column('partner')),
-            Row(Column('supervisor'), Column('phone')),
-            'password',
-            Submit('submit', 'Create User', css_class='btn btn-primary'),
-        )
+        self.helper.form_tag = False
 
 
 class UserEditForm(forms.ModelForm):
+    extra_roles = forms.MultipleChoiceField(
+        choices=Role.choices,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label='Additional Roles',
+        help_text='Assign extra roles alongside the primary role above.',
+    )
+
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email', 'role', 'partner', 'supervisor', 'phone', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            current_extra = list(
+                self.instance.extra_role_assignments.values_list('role', flat=True)
+            )
+            self.fields['extra_roles'].initial = current_extra
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Row(Column('first_name'), Column('last_name')),
-            Row(Column('email'), Column('role')),
-            Row(Column('partner'), Column('supervisor')),
-            Row(Column('phone'), Column('is_active')),
-            Submit('submit', 'Save Changes', css_class='btn btn-primary'),
-        )
+        self.helper.form_tag = False
 
 
 class PartnerForm(forms.ModelForm):

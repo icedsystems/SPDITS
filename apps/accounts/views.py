@@ -204,20 +204,17 @@ class SetPasswordView(LoginRequiredMixin, View):
 
 
 class AdminPasswordResetView(AdminRequiredMixin, View):
-    """Admin sets a new password directly for any user — no email required."""
+    """Flag user for forced password reset on next login — admin sets no password."""
 
     def post(self, request, pk):
+        import secrets
         user = get_object_or_404(CustomUser, pk=pk)
-        new_password = request.POST.get('new_password', '').strip()
-        if len(new_password) < 8:
-            messages.error(request, 'Password must be at least 8 characters.')
-            return redirect('accounts:user_list')
-        user.set_password(new_password)
+        user.set_password(secrets.token_urlsafe(20))
         user.force_password_change = True
         user.save(update_fields=['password', 'force_password_change'])
         log_action(request, 'ADMIN_PASSWORD_RESET', 'accounts', pk,
-                   description=f'{request.user.email} reset password for {user.email}')
-        messages.success(request, f'Password for {user.email} has been reset. They will be prompted to change it on next login.')
+                   description=f'{request.user.email} triggered forced password reset for {user.email}')
+        messages.success(request, f'{user.get_full_name()} will be prompted to set a new password on their next login.')
         return redirect('accounts:user_list')
 
 

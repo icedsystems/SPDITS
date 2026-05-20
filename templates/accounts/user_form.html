@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}{% if object %}Edit User{% else %}Create User{% endif %} — ICED SPDITS{% endblock %}
-{% block page_title %}{% if object %}Edit User{% else %}Create User{% endif %}{% endblock %}
+{% block title %}{% if object %}Edit User{% elif supervisor_mode %}Add Enumerator{% else %}Create User{% endif %} — ICED SPDITS{% endblock %}
+{% block page_title %}{% if object %}Edit User{% elif supervisor_mode %}Add Enumerator{% else %}Create User{% endif %}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -8,7 +8,11 @@
     <div class="card">
       <div class="card-header d-flex align-items-center gap-2">
         <i class="bi bi-person-plus text-primary"></i>
-        <h6 class="mb-0 fw-bold">{% if object %}Edit User — {{ object.email }}{% else %}Create New User{% endif %}</h6>
+        <h6 class="mb-0 fw-bold">
+          {% if object %}Edit User — {{ object.email }}
+          {% elif supervisor_mode %}Add Enumerator to Your Team
+          {% else %}Create New User{% endif %}
+        </h6>
       </div>
       <div class="card-body">
         <form method="post" novalidate>
@@ -74,6 +78,14 @@
             {% endif %}
           </div>
 
+          {% if supervisor_mode %}
+          <!-- Supervisor mode: role is fixed to Enumerator -->
+          <hr class="my-4">
+          <div class="alert alert-info py-2 small mb-0">
+            <i class="bi bi-person-badge me-1"></i>
+            This account will be created as an <strong>Enumerator</strong> and automatically assigned to your team.
+          </div>
+          {% else %}
           <!-- Primary Role -->
           <hr class="my-4">
           <h6 class="fw-bold mb-3"><i class="bi bi-person-badge me-2 text-primary"></i>Role Assignment</h6>
@@ -106,6 +118,7 @@
               {% if form.extra_roles.errors %}<div class="text-danger small mt-2">{{ form.extra_roles.errors }}</div>{% endif %}
             </div>
           </div>
+          {% endif %}
 
           <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-primary">

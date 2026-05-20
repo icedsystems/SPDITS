@@ -5,6 +5,26 @@ from django.utils import timezone
 import datetime
 
 
+class ForcePasswordChangeMiddleware:
+    """Redirect any authenticated user whose force_password_change flag is set."""
+
+    EXEMPT_PATHS = [
+        '/accounts/set-password/',
+        '/accounts/logout/',
+        '/accounts/login/',
+        '/accounts/oauth/',
+    ]
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.user.is_authenticated and getattr(request.user, 'force_password_change', False):
+            if not any(request.path.startswith(p) for p in self.EXEMPT_PATHS):
+                return redirect('/accounts/set-password/')
+        return self.get_response(request)
+
+
 class SessionTimeoutMiddleware:
     """Automatically log out idle users after SESSION_TIMEOUT_SECONDS."""
 

@@ -228,4 +228,5 @@ class QuickInterviewUpdateView(LoginRequiredMixin, View):
             InterviewStatus.IN_PROGRESS: 'Marked as in progress',
         }
         messages.success(request, f'{status_labels.get(new_status, "Status updated")} — {interview.participant.pseudo_code}.')
-        return redirect('assignments:mine')
+        next_url = request.POST.get('next') or 'assignments:mine'
+        return redirect(next_url)

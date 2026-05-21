@@ -47,11 +47,26 @@ class InterviewListView(LoginRequiredMixin, ListView):
         status = self.request.GET.get('status')
         if status:
             qs = qs.filter(status=status)
+        enumerator_id = self.request.GET.get('enumerator')
+        if enumerator_id:
+            qs = qs.filter(enumerator_id=enumerator_id)
         return qs
 
     def get_context_data(self, **kwargs):
+        from apps.accounts.models import CustomUser
         ctx = super().get_context_data(**kwargs)
         ctx['statuses'] = InterviewStatus.choices
+        user = self.request.user
+        if user.is_supervisor():
+            ctx['enumerators'] = CustomUser.objects.filter(
+                supervisor=user, is_active=True
+            ).order_by('first_name', 'last_name')
+        elif user.is_admin():
+            ctx['enumerators'] = CustomUser.objects.filter(
+                role='enumerator', is_active=True
+            ).order_by('first_name', 'last_name')
+        else:
+            ctx['enumerators'] = []
         return ctx
 
 

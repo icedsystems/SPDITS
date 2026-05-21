@@ -5,7 +5,12 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <div><h4 class="fw-bold mb-0">Interviews</h4><p class="text-muted small">Track and update all interview outcomes</p></div>
+  <div>
+    <h4 class="fw-bold mb-0">Interviews</h4>
+    <p class="text-muted small">
+      {% if is_supervisor_view %}All participants assigned to your team — update status on their behalf if needed{% else %}Track and update all interview outcomes{% endif %}
+    </p>
+  </div>
 </div>
 
 <!-- Filters -->
@@ -28,7 +33,147 @@
   </div>
 </div>
 
-<!-- Interview Table -->
+<!-- ── SUPERVISOR VIEW: assignment-based, shows all participants ── -->
+{% if is_supervisor_view %}
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="bg-light">
+        <tr>
+          <th>Pseudocode</th>
+          <th>Enumerator</th>
+          <th>Assigned</th>
+          <th>Interview Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in interviews %}
+        <tr>
+          <td><span class="pseudocode">{{ a.participant.pseudo_code }}</span></td>
+          <td class="small">{{ a.enumerator.get_full_name }}</td>
+          <td class="small text-muted">{{ a.assigned_at|date:"d M Y" }}</td>
+          <td>
+            {% if not a.iv_status or a.iv_status == 'pending' %}
+              <span class="badge bg-secondary"><i class="bi bi-clock me-1"></i>Not Started</span>
+            {% elif a.iv_status == 'assigned' %}
+              <span class="badge bg-primary"><i class="bi bi-person-check me-1"></i>Assigned</span>
+            {% elif a.iv_status == 'in_progress' %}
+              <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>In Progress</span>
+            {% elif a.iv_status == 'completed' %}
+              <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Interviewed</span>
+            {% elif a.iv_status == 'refused' %}
+              <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Refused</span>
+            {% elif a.iv_status == 'unreachable' %}
+              <span class="badge bg-dark"><i class="bi bi-telephone-x me-1"></i>Unreachable</span>
+            {% elif a.iv_status == 'callback_required' %}
+              <span class="badge bg-info text-dark"><i class="bi bi-telephone-forward me-1"></i>Callback Required</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ a.iv_display }}</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if a.iv_status == 'completed' or a.iv_status == 'refused' or a.iv_status == 'unreachable' %}
+              <span class="text-muted small fst-italic me-1">Recorded</span>
+              {% if a.iv_pk %}
+              <a href="{% url 'interviews:detail' a.iv_pk %}" class="btn btn-sm btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
+              {% endif %}
+            {% else %}
+              <div class="d-flex gap-1 justify-content-end">
+                {% if a.iv_pk %}
+                <a href="{% url 'interviews:detail' a.iv_pk %}" class="btn btn-sm btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateModal"
+                        data-assignment-pk="{{ a.pk }}"
+                        data-current-status="{{ a.iv_status|default:'' }}"
+                        data-remarks="{{ a.iv_remarks|default:''|escapejs }}"
+                        data-callback="{{ a.iv_callback|date:'Y-m-d' }}"
+                        data-pseudocode="{{ a.participant.pseudo_code }}"
+                        data-enumerator="{{ a.enumerator.get_full_name }}"
+                        title="Update status">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No assigned participants found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'partials/pagination.html' %}
+</div>
+
+<!-- Supervisor quick-update modal (posts to quick_update, expects assignment pk) -->
+<div class="modal fade" id="updateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" id="supUpdateForm" action="">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'interviews:list' %}">
+        <div class="modal-header">
+          <h6 class="modal-title fw-bold">Update Interview Status</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-1">Participant: <span class="pseudocode fw-semibold" id="supPseudo"></span></p>
+          <p class="text-muted small mb-3">Enumerator: <strong id="supEnum"></strong></p>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">New Status</label>
+            <select name="status" id="supStatus" class="form-select" required>
+              {% for val, label in statuses %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Remarks</label>
+            <textarea name="remarks" id="supRemarks" class="form-control" rows="3" placeholder="Optional notes…"></textarea>
+          </div>
+          <div class="mb-1">
+            <label class="form-label fw-semibold small">Callback Date <span class="text-muted">(if needed)</span></label>
+            <input type="date" name="callback_date" id="supCallback" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Save Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var modal = document.getElementById('updateModal');
+  modal.addEventListener('show.bs.modal', function (e) {
+    var btn = e.relatedTarget;
+    var assignPk  = btn.getAttribute('data-assignment-pk');
+    var status    = btn.getAttribute('data-current-status');
+    var remarks   = btn.getAttribute('data-remarks');
+    var callback  = btn.getAttribute('data-callback');
+    var pseudo    = btn.getAttribute('data-pseudocode');
+    var enumName  = btn.getAttribute('data-enumerator');
+
+    document.getElementById('supUpdateForm').action = '/interviews/quick/' + assignPk + '/';
+    document.getElementById('supPseudo').textContent  = pseudo;
+    document.getElementById('supEnum').textContent    = enumName;
+    document.getElementById('supRemarks').value       = remarks || '';
+    document.getElementById('supCallback').value      = callback || '';
+
+    var sel = document.getElementById('supStatus');
+    for (var i = 0; i < sel.options.length; i++) {
+      sel.options[i].selected = (sel.options[i].value === status);
+    }
+  });
+});
+</script>
+
+{% else %}
+<!-- ── ADMIN / ENUMERATOR VIEW: interview-based ── -->
 <div class="card">
   <div class="card-body p-0">
     <table class="table table-hover mb-0">
@@ -51,11 +196,11 @@
           <td class="small text-muted">{{ iv.scheduled_date|date:"d M Y"|default:'—' }}</td>
           <td class="small text-muted">{{ iv.updated_at|timesince }} ago</td>
           <td class="text-end">
-            <a href="{% url 'interviews:detail' iv.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="View detail"><i class="bi bi-eye"></i></a>
-            {% if request.user == iv.enumerator or request.user.is_admin or request.user.is_supervisor %}
+            <a href="{% url 'interviews:detail' iv.pk %}" class="btn btn-sm btn-outline-secondary me-1" title="View"><i class="bi bi-eye"></i></a>
+            {% if request.user.is_admin or request.user.is_enumerator %}
             <button class="btn btn-sm btn-outline-primary"
                     data-bs-toggle="modal"
-                    data-bs-target="#updateModal"
+                    data-bs-target="#ivUpdateModal"
                     data-interview-id="{{ iv.pk }}"
                     data-current-status="{{ iv.status }}"
                     data-remarks="{{ iv.remarks|escapejs }}"
@@ -76,32 +221,31 @@
   {% include 'partials/pagination.html' %}
 </div>
 
-<!-- Shared Quick-Update Modal (supervisor / admin / enumerator) -->
-{% if request.user.is_admin or request.user.is_supervisor or request.user.is_enumerator %}
-<div class="modal fade" id="updateModal" tabindex="-1">
+{% if request.user.is_admin or request.user.is_enumerator %}
+<div class="modal fade" id="ivUpdateModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form method="post" id="updateModalForm" action="">
+      <form method="post" id="ivUpdateForm" action="">
         {% csrf_token %}
         <div class="modal-header">
           <h6 class="modal-title fw-bold">Update Interview Status</h6>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small mb-3">Participant: <span class="pseudocode fw-semibold" id="modalPseudocode"></span></p>
+          <p class="text-muted small mb-3">Participant: <span class="pseudocode fw-semibold" id="ivPseudo"></span></p>
           <div class="mb-3">
             <label class="form-label fw-semibold small">New Status</label>
-            <select name="status" id="modalStatus" class="form-select" required>
+            <select name="status" id="ivStatus" class="form-select" required>
               {% for val, label in statuses %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
             </select>
           </div>
           <div class="mb-3">
             <label class="form-label fw-semibold small">Remarks</label>
-            <textarea name="remarks" id="modalRemarks" class="form-control" rows="3" placeholder="Optional notes…"></textarea>
+            <textarea name="remarks" id="ivRemarks" class="form-control" rows="3"></textarea>
           </div>
-          <div class="mb-1" id="callbackSection">
+          <div class="mb-1">
             <label class="form-label fw-semibold small">Callback Date <span class="text-muted">(if needed)</span></label>
-            <input type="date" name="callback_date" id="modalCallback" class="form-control">
+            <input type="date" name="callback_date" id="ivCallback" class="form-control">
           </div>
         </div>
         <div class="modal-footer">
@@ -112,30 +256,23 @@
     </div>
   </div>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  var modal = document.getElementById('updateModal');
+  var modal = document.getElementById('ivUpdateModal');
+  if (!modal) return;
   modal.addEventListener('show.bs.modal', function (e) {
     var btn = e.relatedTarget;
-    var id       = btn.getAttribute('data-interview-id');
-    var status   = btn.getAttribute('data-current-status');
-    var remarks  = btn.getAttribute('data-remarks');
-    var callback = btn.getAttribute('data-callback');
-    var pseudo   = btn.getAttribute('data-pseudocode');
-
-    document.getElementById('updateModalForm').action = '/interviews/' + id + '/update/';
-    document.getElementById('modalPseudocode').textContent = pseudo;
-    document.getElementById('modalRemarks').value = remarks || '';
-    document.getElementById('modalCallback').value = callback || '';
-
-    var sel = document.getElementById('modalStatus');
-    for (var i = 0; i < sel.options.length; i++) {
-      sel.options[i].selected = (sel.options[i].value === status);
-    }
+    document.getElementById('ivUpdateForm').action = '/interviews/' + btn.getAttribute('data-interview-id') + '/update/';
+    document.getElementById('ivPseudo').textContent  = btn.getAttribute('data-pseudocode');
+    document.getElementById('ivRemarks').value       = btn.getAttribute('data-remarks') || '';
+    document.getElementById('ivCallback').value      = btn.getAttribute('data-callback') || '';
+    var sel = document.getElementById('ivStatus');
+    var cur = btn.getAttribute('data-current-status');
+    for (var i = 0; i < sel.options.length; i++) sel.options[i].selected = (sel.options[i].value === cur);
   });
 });
 </script>
+{% endif %}
 {% endif %}
 
 {% endblock %}

@@ -32,18 +32,45 @@ def _complete_assignment(assignment):
 
 
 class InterviewListView(LoginRequiredMixin, ListView):
-    model = Interview
     template_name = 'interviews/interview_list.html'
     context_object_name = 'interviews'
     paginate_by = 25
 
+    # Badge colours reused in both code paths
+    _BADGE = {
+        InterviewStatus.PENDING: 'secondary',
+        InterviewStatus.ASSIGNED: 'primary',
+        InterviewStatus.IN_PROGRESS: 'warning',
+        InterviewStatus.COMPLETED: 'success',
+        InterviewStatus.REFUSED: 'danger',
+        InterviewStatus.UNREACHABLE: 'dark',
+        InterviewStatus.CALLBACK_REQUIRED: 'info',
+    }
+
     def get_queryset(self):
+        from apps.assignments.models import Assignment
         user = self.request.user
+
+        if user.is_supervisor():
+            # Base from Assignment so ALL assigned participants appear,
+            # even those with no interview record yet.
+            qs = Assignment.objects.select_related(
+                'participant', 'participant__partner', 'enumerator'
+            ).prefetch_related('interview').filter(enumerator__supervisor=user)
+            enumerator_id = self.request.GET.get('enumerator')
+            if enumerator_id:
+                qs = qs.filter(enumerator_id=enumerator_id)
+            status = self.request.GET.get('status')
+            if status:
+                # Filter on related interview status; exclude rows with no
+                # interview when filtering for a specific status
+                qs = qs.filter(interview__status=status)
+            return qs
+
+        # Admin and enumerator: Interview-based queryset (original behaviour)
         qs = Interview.objects.select_related('participant', 'enumerator', 'participant__partner')
         if user.is_enumerator():
             qs = qs.filter(enumerator=user)
-        elif user.is_supervisor():
-            qs = qs.filter(enumerator__supervisor=user)
         status = self.request.GET.get('status')
         if status:
             qs = qs.filter(status=status)
@@ -57,7 +84,30 @@ class InterviewListView(LoginRequiredMixin, ListView):
         ctx = super().get_context_data(**kwargs)
         ctx['statuses'] = InterviewStatus.choices
         user = self.request.user
+        ctx['is_supervisor_view'] = user.is_supervisor()
+
         if user.is_supervisor():
+            label_map = dict(InterviewStatus.choices)
+            for a in ctx['interviews']:
+                try:
+                    iv = a.interview
+                    a.iv_status = iv.status
+                    a.iv_badge = self._BADGE.get(iv.status, 'secondary')
+                    a.iv_display = label_map.get(iv.status, iv.status)
+                    a.iv_pk = iv.pk
+                    a.iv_remarks = iv.remarks
+                    a.iv_callback = iv.callback_date
+                    a.iv_scheduled = iv.scheduled_date
+                    a.iv_updated = iv.updated_at
+                except Exception:
+                    a.iv_status = None
+                    a.iv_badge = 'secondary'
+                    a.iv_display = 'Not Started'
+                    a.iv_pk = None
+                    a.iv_remarks = ''
+                    a.iv_callback = None
+                    a.iv_scheduled = None
+                    a.iv_updated = a.assigned_at
             ctx['enumerators'] = CustomUser.objects.filter(
                 supervisor=user, is_active=True
             ).order_by('first_name', 'last_name')

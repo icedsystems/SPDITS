@@ -123,6 +123,11 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return self.request.user.is_admin()
 
 
+class AdminManualView(AdminRequiredMixin, View):
+    def get(self, request):
+        return render(request, 'manual/admin_manual.html')
+
+
 class AdminOrSupervisorMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_admin() or self.request.user.is_supervisor()

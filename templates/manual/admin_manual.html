@@ -1,0 +1,675 @@
+{% extends 'base.html' %}
+{% block title %}Admin Training Manual — ICED SPDITS{% endblock %}
+{% block page_title %}Admin Training Manual{% endblock %}
+{% block nav_admin_manual %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+  .manual-toc a { color: #1a3a6b; text-decoration: none; display: block; padding: 3px 0; font-size: 0.875rem; }
+  .manual-toc a:hover { text-decoration: underline; }
+  .manual-toc .toc-h2 { padding-left: 1rem; color: #64748b; }
+  .section-anchor { scroll-margin-top: 70px; }
+  .role-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .role-admin    { background: #fee2e2; color: #b91c1c; }
+  .role-partner  { background: #dbeafe; color: #1d4ed8; }
+  .role-super    { background: #fef9c3; color: #854d0e; }
+  .role-enum     { background: #e0f2fe; color: #075985; }
+  .role-tracer   { background: #dcfce7; color: #166534; }
+  .role-comply   { background: #f3e8ff; color: #6b21a8; }
+  .step-circle   { width: 26px; height: 26px; border-radius: 50%; background: #1a3a6b; color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .manual-table th { background: #f1f5f9; font-size: 0.8rem; }
+  .manual-table td { font-size: 0.85rem; vertical-align: top; }
+  .nav-path { font-family: monospace; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px 6px; font-size: 0.8rem; color: #1a3a6b; }
+  .callout { border-left: 4px solid; border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 12px 0; }
+  .callout-info  { border-color: #3b82f6; background: #eff6ff; }
+  .callout-warn  { border-color: #f59e0b; background: #fffbeb; }
+  .callout-danger{ border-color: #ef4444; background: #fef2f2; }
+  .callout-tip   { border-color: #10b981; background: #ecfdf5; }
+  .workflow-arrow { color: #94a3b8; font-size: 1.2rem; }
+  @media print {
+    .sidebar, #sidebar-wrapper, #page-content-wrapper > .d-flex { display: none !important; }
+    .card { break-inside: avoid; }
+    a.btn { display: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h4 class="fw-bold mb-1">System Administrator Training Manual</h4>
+    <p class="text-muted small mb-0">ICED SPDITS — Secure Partner Data Intake &amp; Tracing System &nbsp;|&nbsp; For internal administrator use only</p>
+  </div>
+  <button onclick="window.print()" class="btn btn-outline-primary btn-sm d-print-none">
+    <i class="bi bi-printer me-1"></i>Print / Save PDF
+  </button>
+</div>
+
+<div class="row g-4">
+
+  <!-- LEFT: Table of Contents -->
+  <div class="col-lg-3 d-print-none">
+    <div class="card sticky-top" style="top:70px">
+      <div class="card-header py-2"><h6 class="mb-0 fw-bold"><i class="bi bi-list-ul me-1"></i>Contents</h6></div>
+      <div class="card-body py-2 manual-toc">
+        <a href="#s1">1. System Overview</a>
+        <a href="#s1-roles" class="toc-h2">User Roles</a>
+        <a href="#s1-workflow" class="toc-h2">End-to-End Workflow</a>
+        <a href="#s2">2. Admin Navigation</a>
+        <a href="#s3">3. Partner Role</a>
+        <a href="#s4">4. Supervisor Role</a>
+        <a href="#s5">5. Enumerator Role</a>
+        <a href="#s6">6. Tracer Role</a>
+        <a href="#s7">7. Compliance Officer</a>
+        <a href="#s8">8. User Management</a>
+        <a href="#s8-invite" class="toc-h2">Invitations</a>
+        <a href="#s8-direct" class="toc-h2">Direct Creation</a>
+        <a href="#s8-pass" class="toc-h2">Password Resets</a>
+        <a href="#s9">9. File Upload Workflow</a>
+        <a href="#s10">10. Tracing Workflow</a>
+        <a href="#s11">11. Assignment Workflow</a>
+        <a href="#s12">12. Interview Workflow</a>
+        <a href="#s13">13. SFTP Ingestion</a>
+        <a href="#s14">14. Audit &amp; Security</a>
+        <a href="#s15">15. Troubleshooting</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Manual Content -->
+  <div class="col-lg-9">
+
+    <!-- ── SECTION 1: SYSTEM OVERVIEW ── -->
+    <div class="card mb-4" id="s1">
+      <div class="card-header" style="background:linear-gradient(135deg,#1a2840,#1a3a6b)">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-info-circle me-2"></i>1. System Overview</h5>
+      </div>
+      <div class="card-body">
+        <p>ICED SPDITS (<strong>Secure Partner Data Intake &amp; Tracing System</strong>) is a web-based platform that manages the full lifecycle of participant data from initial upload through field interviews. It is designed for data security and auditability, with strict role-based access controls.</p>
+
+        <h6 class="fw-bold mt-4 mb-3" id="s1-roles">User Roles <small class="text-muted fw-normal fs-6">— six distinct roles with separate access levels</small></h6>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Role</th><th>Who They Are</th><th>What They Can Do</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="role-badge role-admin">System Admin</span></td>
+                <td>ICED system administrators</td>
+                <td>Full access — manage all users, approve uploads, view all data, access audit logs, re-identify participants, configure SFTP and email settings</td>
+              </tr>
+              <tr>
+                <td><span class="role-badge role-partner">Partner</span></td>
+                <td>Data partner organisations (NGOs, agencies)</td>
+                <td>Upload participant CSV/XLSX files, view their own upload history and batch status</td>
+              </tr>
+              <tr>
+                <td><span class="role-badge role-super">Supervisor</span></td>
+                <td>Field team supervisors</td>
+                <td>Assign traced participants to their enumerators, monitor team progress, update interview status on behalf of enumerators, manage their enumerators' accounts</td>
+              </tr>
+              <tr>
+                <td><span class="role-badge role-enum">Enumerator</span></td>
+                <td>Field data collectors</td>
+                <td>View their assigned participants, record interview outcomes (Interviewed / Refused / Unreachable / Callback), download their secure assignment CSV</td>
+              </tr>
+              <tr>
+                <td><span class="role-badge role-tracer">Tracer</span></td>
+                <td>Participant tracers</td>
+                <td>Work through the tracing queue, update tracing status (tracing / traced / cannot trace), add location and contact notes</td>
+              </tr>
+              <tr>
+                <td><span class="role-badge role-comply">Compliance Officer</span></td>
+                <td>Data compliance staff</td>
+                <td>Access the compliance dashboard, re-identify participants with mandatory reason logging, view compliance reports</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold mt-4 mb-3" id="s1-workflow">End-to-End Data Flow</h6>
+        <div class="card bg-light border-0">
+          <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <div class="text-center px-3 py-2 bg-white rounded border" style="min-width:110px">
+                <div class="fw-bold small text-primary">1. Upload</div>
+                <div style="font-size:11px" class="text-muted">Partner submits CSV/XLSX</div>
+              </div>
+              <span class="workflow-arrow">→</span>
+              <div class="text-center px-3 py-2 bg-white rounded border" style="min-width:110px">
+                <div class="fw-bold small text-warning">2. Admin Review</div>
+                <div style="font-size:11px" class="text-muted">Admin approves or rejects</div>
+              </div>
+              <span class="workflow-arrow">→</span>
+              <div class="text-center px-3 py-2 bg-white rounded border" style="min-width:110px">
+                <div class="fw-bold small text-info">3. Processing</div>
+                <div style="font-size:11px" class="text-muted">Validated, pseudocoded, identifiers encrypted</div>
+              </div>
+              <span class="workflow-arrow">→</span>
+              <div class="text-center px-3 py-2 bg-white rounded border" style="min-width:110px">
+                <div class="fw-bold small text-success">4. Tracing</div>
+                <div style="font-size:11px" class="text-muted">Tracers locate participants</div>
+              </div>
+              <span class="workflow-arrow">→</span>
+              <div class="text-center px-3 py-2 bg-white rounded border" style="min-width:110px">
+                <div class="fw-bold small" style="color:#7c3aed">5. Assignment</div>
+                <div style="font-size:11px" class="text-muted">Supervisor assigns to enumerators</div>
+              </div>
+              <span class="workflow-arrow">→</span>
+              <div class="text-center px-3 py-2 bg-white rounded border" style="min-width:110px">
+                <div class="fw-bold small text-danger">6. Interview</div>
+                <div style="font-size:11px" class="text-muted">Enumerator records outcome</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info mt-3">
+          <strong>Pseudocode system:</strong> When a batch is approved, each participant is assigned a unique pseudocode (format: <code>PSN-YYYY-NNNNNN</code>). Direct identifiers (name, phone, ID) are stripped and stored encrypted. The main participant record only holds quasi-identifiers (county, gender, age). This protects participant privacy throughout the workflow.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: ADMIN NAVIGATION ── -->
+    <div class="card mb-4" id="s2">
+      <div class="card-header" style="background:#b91c1c">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-shield-fill me-2"></i>2. System Admin — Full Navigation Guide</h5>
+      </div>
+      <div class="card-body">
+        <p>The System Admin has access to every section of the sidebar. Below is every menu item and what it does.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Sidebar Item</th><th>URL Path</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><i class="bi bi-speedometer2 me-1"></i><strong>Dashboard</strong></td><td><span class="nav-path">/dashboard/</span></td><td>KPI overview: total uploads, pending approvals, participant counts by status, active interviews, recent batches, audit log tail, SFTP activity</td></tr>
+              <tr><td><i class="bi bi-cloud-upload me-1"></i><strong>File Uploads</strong></td><td><span class="nav-path">/uploads/</span></td><td>List all upload batches from all partners. Approve or reject batches. View validation errors. Pending approvals shown with a yellow badge count.</td></tr>
+              <tr><td><i class="bi bi-hdd-network me-1"></i><strong>SFTP Ingestion</strong></td><td><span class="nav-path">/sftp/</span></td><td>View SFTP ingestion logs. Each log shows which file was detected, its status, and any errors. Runs automatically every 60 seconds via Celery beat.</td></tr>
+              <tr><td><i class="bi bi-people me-1"></i><strong>Participants</strong></td><td><span class="nav-path">/participants/</span></td><td>Full participant list across all partners. Filter by status, partner, county. View individual participant detail (quasi-identifiers only). Re-identification available via Compliance section.</td></tr>
+              <tr><td><i class="bi bi-search-heart me-1"></i><strong>Tracing Queue</strong></td><td><span class="nav-path">/tracing/queue/</span></td><td>All participants awaiting tracing or currently being traced. Admins can update any participant's tracing status directly.</td></tr>
+              <tr><td><i class="bi bi-person-check me-1"></i><strong>Assignments</strong></td><td><span class="nav-path">/assignments/queue/</span></td><td>Queue of traced participants ready to be assigned to enumerators. Select participants, choose enumerator, bulk assign. Also view all existing assignments at <span class="nav-path">/assignments/</span>.</td></tr>
+              <tr><td><i class="bi bi-clipboard2-check me-1"></i><strong>Interviews</strong></td><td><span class="nav-path">/interviews/</span></td><td>All interviews across all enumerators. Filter by status or enumerator. Update any interview status directly. View full interview history.</td></tr>
+              <tr><td><i class="bi bi-journal-check me-1"></i><strong>Audit Log</strong></td><td><span class="nav-path">/audit/</span></td><td>Immutable record of every action in the system. Every login, upload, approval, status update, and re-identification is logged with timestamp, user, IP address, and session ID. Records cannot be deleted or edited.</td></tr>
+              <tr><td><i class="bi bi-shield-check me-1"></i><strong>Compliance</strong></td><td><span class="nav-path">/compliance/</span></td><td>Compliance officer dashboard. Re-identification view accessible here for admins too. Each re-identification requires a mandatory reason and is fully logged.</td></tr>
+              <tr><td><i class="bi bi-envelope-paper me-1"></i><strong>Invitations</strong></td><td><span class="nav-path">/invitations/</span></td><td>Token-based invitation system for onboarding new users by email. Admin-only.</td></tr>
+              <tr><td><i class="bi bi-person-gear me-1"></i><strong>User Management</strong></td><td><span class="nav-path">/accounts/users/</span></td><td>List, create, and edit all user accounts. Assign roles, supervisors, and partner organisations. Reset passwords.</td></tr>
+              <tr><td><i class="bi bi-building me-1"></i><strong>Partners</strong></td><td><span class="nav-path">/accounts/partners/</span></td><td>Manage partner organisations. Create partners with a unique code (used as the upload folder name). Edit contact details.</td></tr>
+              <tr><td><i class="bi bi-hdd-network me-1"></i><strong>SFTP Config</strong></td><td><span class="nav-path">/sftp/config/</span></td><td>Configure SFTP server connection details per partner. Each partner can have a separate SFTP folder that the system polls automatically.</td></tr>
+              <tr><td><i class="bi bi-envelope-gear me-1"></i><strong>Email Settings</strong></td><td><span class="nav-path">/notifications/email-config/</span></td><td>Configure the Microsoft Graph API email settings used for all outgoing emails (welcome emails, assignment notifications, password resets).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: PARTNER ── -->
+    <div class="card mb-4" id="s3">
+      <div class="card-header" style="background:#1d4ed8">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-building me-2"></i>3. Partner Role — Navigation &amp; Workflow</h5>
+      </div>
+      <div class="card-body">
+        <p>Partners are external organisations that supply participant data to ICED. They can only see their own data.</p>
+        <h6 class="fw-bold mb-2">What Partners See</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Page</th><th>Path</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Dashboard</strong></td><td><span class="nav-path">/dashboard/</span></td><td>Their own KPIs: total uploads, pending / approved / rejected batch counts, list of recent batches</td></tr>
+              <tr><td><strong>File Uploads</strong></td><td><span class="nav-path">/uploads/</span></td><td>Upload a new CSV or XLSX file. View their own upload history and current batch statuses.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h6 class="fw-bold mt-3 mb-2">Upload File Requirements</h6>
+        <ul>
+          <li>Accepted formats: <strong>CSV</strong> or <strong>XLSX</strong></li>
+          <li>Required columns: <code>name</code>, <code>national_id</code> or <code>passport</code>, <code>phone</code>, <code>county</code>, <code>gender</code>, <code>age</code></li>
+          <li>Files are stored under <code>/media/uploads/&lt;PARTNER_CODE&gt;/</code> on the server</li>
+          <li>Duplicate detection runs on national ID / passport number. Duplicate rows are flagged but the rest of the batch is still processed.</li>
+        </ul>
+        <div class="callout callout-warn">
+          <strong>Note for admins:</strong> When creating a partner user account, always link them to the correct <strong>Partner organisation</strong> in the user form. Without this link, they cannot upload files.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: SUPERVISOR ── -->
+    <div class="card mb-4" id="s4">
+      <div class="card-header" style="background:#854d0e">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-person-badge me-2"></i>4. Supervisor Role — Navigation &amp; Workflow</h5>
+      </div>
+      <div class="card-body">
+        <p>Supervisors manage a team of enumerators. They assign traced participants, monitor progress, and can update interview status on behalf of enumerators who cannot access the system.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Page</th><th>Path</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Dashboard</strong></td><td><span class="nav-path">/dashboard/</span></td><td>KPIs for their team: enumerator count, active assignments, completed and pending interviews. Table of their enumerators with assignment counts.</td></tr>
+              <tr><td><strong>Tracing Queue</strong></td><td><span class="nav-path">/tracing/queue/</span></td><td>View and update tracing status of participants. Supervisors can mark participants as traced.</td></tr>
+              <tr><td><strong>Assignment Queue</strong></td><td><span class="nav-path">/assignments/queue/</span></td><td>Select traced participants and bulk-assign them to one of their enumerators. The enumerator receives an email with a 30-minute secure download link for the participant CSV.</td></tr>
+              <tr><td><strong>Team Assignments</strong></td><td><span class="nav-path">/assignments/</span></td><td>All participants assigned to their enumerators, with current interview status. Filter by enumerator or status. Update any participant's outcome directly from here.</td></tr>
+              <tr><td><strong>Interviews</strong></td><td><span class="nav-path">/interviews/</span></td><td>All interviews for their team. Filter by enumerator or status. Inline update modal on each row.</td></tr>
+              <tr><td><strong>User Management</strong></td><td><span class="nav-path">/accounts/users/</span></td><td>Supervisors can create and manage accounts for their own enumerators only.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold mt-3 mb-2">Assigning Participants — Step by Step</h6>
+        <div class="d-flex flex-column gap-2 mt-2">
+          {% for step in "12345"|make_list %}
+          <div class="d-flex gap-3 align-items-start">
+            <div class="step-circle">{{ forloop.counter }}</div>
+            <div class="small mt-1">
+              {% if forloop.counter == 1 %}Go to <span class="nav-path">/assignments/queue/</span> — this shows all participants with status <strong>Traced</strong>{% endif %}
+              {% if forloop.counter == 2 %}Tick the checkboxes for the participants you want to assign{% endif %}
+              {% if forloop.counter == 3 %}Select the target enumerator from the dropdown (only your own enumerators appear){% endif %}
+              {% if forloop.counter == 4 %}Optionally add assignment notes, then click <strong>Bulk Assign</strong>{% endif %}
+              {% if forloop.counter == 5 %}The enumerator receives an email and in-app notification with a secure CSV download link (expires in 30 minutes){% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="callout callout-tip mt-3">
+          <strong>Updating for offline enumerators:</strong> Go to <span class="nav-path">/assignments/</span>, find the participant, click the <strong>Update</strong> dropdown, and choose the correct outcome. The system records you as the person who made the update and logs it in the audit trail.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: ENUMERATOR ── -->
+    <div class="card mb-4" id="s5">
+      <div class="card-header" style="background:#075985">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-person-check me-2"></i>5. Enumerator Role — Navigation &amp; Workflow</h5>
+      </div>
+      <div class="card-body">
+        <p>Enumerators are field data collectors. They see only participants assigned to them.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Page</th><th>Path</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Dashboard</strong></td><td><span class="nav-path">/dashboard/</span></td><td>Their personal KPIs: active assignments, completed and pending interviews. Quick list of recent interview records.</td></tr>
+              <tr><td><strong>My Assignments</strong></td><td><span class="nav-path">/assignments/mine/</span></td><td>Full list of all participants assigned to them. For each participant, a <strong>Record Outcome</strong> dropdown lets them record: Interviewed, Refused, Unreachable, Callback Required, or In Progress.</td></tr>
+              <tr><td><strong>Interviews</strong></td><td><span class="nav-path">/interviews/</span></td><td>Their own interview list. Filtered automatically to their records only. Inline update available.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold mt-3 mb-2">Recording an Outcome — Step by Step</h6>
+        <div class="d-flex flex-column gap-2 mt-2">
+          {% for step in "1234"|make_list %}
+          <div class="d-flex gap-3 align-items-start">
+            <div class="step-circle">{{ forloop.counter }}</div>
+            <div class="small mt-1">
+              {% if forloop.counter == 1 %}Go to <strong>My Assignments</strong> (<span class="nav-path">/assignments/mine/</span>){% endif %}
+              {% if forloop.counter == 2 %}Find the participant row. Click the <strong>Record Outcome</strong> dropdown button{% endif %}
+              {% if forloop.counter == 3 %}Choose the outcome: Interviewed, Refused, Unreachable, Callback Required, or In Progress. A confirmation modal appears.{% endif %}
+              {% if forloop.counter == 4 %}Add any notes and (if Callback Required) a callback date, then click <strong>Confirm &amp; Save</strong>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="callout callout-info mt-3">
+          <strong>Final outcomes</strong> (Interviewed, Refused, Unreachable) lock the row — the outcome cannot be overwritten accidentally. If a correction is needed, a supervisor or admin can update it from their interface.
+        </div>
+
+        <h6 class="fw-bold mt-3 mb-2">Interview Status Definitions</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge bg-primary">Assigned</span></td><td>Participant has been assigned but the enumerator has not yet started</td></tr>
+              <tr><td><span class="badge bg-warning text-dark">In Progress</span></td><td>Enumerator has made contact or started the interview process</td></tr>
+              <tr><td><span class="badge bg-success">Interviewed</span></td><td>Interview completed successfully</td></tr>
+              <tr><td><span class="badge bg-danger">Refused</span></td><td>Participant declined to participate</td></tr>
+              <tr><td><span class="badge bg-dark">Unreachable</span></td><td>Enumerator could not contact the participant after multiple attempts</td></tr>
+              <tr><td><span class="badge bg-info text-dark">Callback Required</span></td><td>Participant requested to be contacted at a later date — callback date should be set</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: TRACER ── -->
+    <div class="card mb-4" id="s6">
+      <div class="card-header" style="background:#166534">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-search-heart me-2"></i>6. Tracer Role — Navigation &amp; Workflow</h5>
+      </div>
+      <div class="card-body">
+        <p>Tracers work through the tracing queue, locating participants in the field and updating their status so they can be assigned to enumerators.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Page</th><th>Path</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Tracing Queue</strong></td><td><span class="nav-path">/tracing/queue/</span></td><td>All participants with status Uploaded or Tracing. Tracers update status, add contact method, location found, and notes.</td></tr>
+              <tr><td><strong>Traced Queue</strong></td><td><span class="nav-path">/tracing/traced/</span></td><td>Participants already marked as Traced — waiting for supervisor assignment.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6 class="fw-bold mt-3 mb-2">Tracing Status Definitions</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Status</th><th>Meaning</th><th>Next Step</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge bg-secondary">Uploaded</span></td><td>Just processed from an approved batch</td><td>Tracer picks up and begins tracing</td></tr>
+              <tr><td><span class="badge bg-warning text-dark">Tracing</span></td><td>Actively being traced in the field</td><td>Continue until located</td></tr>
+              <tr><td><span class="badge bg-success">Traced</span></td><td>Located and ready for assignment</td><td>Supervisor assigns to enumerator</td></tr>
+              <tr><td><span class="badge bg-danger">Cannot Trace</span></td><td>Location could not be determined</td><td>Record reason; admin may review</td></tr>
+              <tr><td><span class="badge bg-primary">Assigned</span></td><td>Assigned to an enumerator</td><td>Enumerator conducts interview</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: COMPLIANCE OFFICER ── -->
+    <div class="card mb-4" id="s7">
+      <div class="card-header" style="background:#6b21a8">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-shield-check me-2"></i>7. Compliance Officer — Navigation &amp; Workflow</h5>
+      </div>
+      <div class="card-body">
+        <p>The Compliance Officer has a restricted but sensitive role — they can access the re-identification feature to view a participant's real identity when operationally necessary.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Page</th><th>Path</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Compliance Dashboard</strong></td><td><span class="nav-path">/compliance/</span></td><td>Summary of re-identification events, participant counts, compliance KPIs</td></tr>
+              <tr><td><strong>Re-Identification</strong></td><td><span class="nav-path">/participants/&lt;id&gt;/reidentify/</span></td><td>View a participant's decrypted direct identifiers. Requires a mandatory written reason. Decrypted data is displayed for 60 seconds then auto-hidden. Every access is logged immutably.</td></tr>
+              <tr><td><strong>Participants</strong></td><td><span class="nav-path">/participants/</span></td><td>Read-only access to the full participant list (quasi-identifiers only)</td></tr>
+              <tr><td><strong>Audit Log</strong></td><td><span class="nav-path">/audit/</span></td><td>Access to the full audit trail</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-danger mt-3">
+          <strong>Re-identification protocol:</strong> Every re-identification access is logged with: the officer's username, the participant pseudocode, the stated reason, the IP address, and the session ID. These logs cannot be deleted. Admins can review all re-identification events from the Audit Log.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: USER MANAGEMENT ── -->
+    <div class="card mb-4" id="s8">
+      <div class="card-header" style="background:#1a3a6b">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-person-gear me-2"></i>8. User Management</h5>
+      </div>
+      <div class="card-body">
+
+        <h6 class="fw-bold mb-2" id="s8-invite">Option A — Invitation System (Recommended for Partners)</h6>
+        <p class="small text-muted">Use invitations when the new user should set their own password via email.</p>
+        <div class="d-flex flex-column gap-2 mb-3">
+          {% for step in "1234"|make_list %}
+          <div class="d-flex gap-3 align-items-start">
+            <div class="step-circle">{{ forloop.counter }}</div>
+            <div class="small mt-1">
+              {% if forloop.counter == 1 %}Go to <span class="nav-path">/invitations/</span> and click <strong>New Invitation</strong>{% endif %}
+              {% if forloop.counter == 2 %}Enter the user's email address and select their role{% endif %}
+              {% if forloop.counter == 3 %}Click <strong>Send Invitation</strong>. The user receives an email with a unique link (valid for 7 days) to set their password and complete registration.{% endif %}
+              {% if forloop.counter == 4 %}Once accepted, their account appears in User Management. The invitation is marked as accepted and cannot be reused.{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <hr>
+        <h6 class="fw-bold mb-2" id="s8-direct">Option B — Direct Account Creation (Recommended for Field Staff)</h6>
+        <p class="small text-muted">Use direct creation for supervisors, enumerators, and tracers. The system sends a password setup link by email.</p>
+        <div class="d-flex flex-column gap-2 mb-3">
+          {% for step in "12345"|make_list %}
+          <div class="d-flex gap-3 align-items-start">
+            <div class="step-circle">{{ forloop.counter }}</div>
+            <div class="small mt-1">
+              {% if forloop.counter == 1 %}Go to <span class="nav-path">/accounts/users/</span> and click <strong>Add User</strong>{% endif %}
+              {% if forloop.counter == 2 %}Fill in first name, last name, email address{% endif %}
+              {% if forloop.counter == 3 %}Select the <strong>Role</strong>. For enumerators, also select their <strong>Supervisor</strong>. For partners, select their <strong>Partner organisation</strong>.{% endif %}
+              {% if forloop.counter == 4 %}A username is auto-generated from the email address. A welcome email is sent with a one-time password setup link (expires in 24 hours).{% endif %}
+              {% if forloop.counter == 5 %}The user clicks the link, sets their password, and is redirected to their dashboard. The <em>force password change</em> flag is cleared automatically.{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <hr>
+        <h6 class="fw-bold mb-2" id="s8-pass">Password Resets</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th>Scenario</th><th>How to Reset</th></tr></thead>
+            <tbody>
+              <tr><td>User forgot password (self-service)</td><td>User clicks <strong>Forgot your password?</strong> on the login page and follows the email link</td></tr>
+              <tr><td>Admin resets for a user</td><td>Go to <span class="nav-path">/accounts/users/</span>, click the user, then <strong>Reset Password</strong>. A new setup link is sent to their email.</td></tr>
+              <tr><td>Supervisor resets enumerator</td><td>Same flow — supervisors can reset passwords for their own enumerators from User Management</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-warn mt-2">
+          <strong>Duplicate accounts:</strong> The system will block creation if the email address or username is already taken. Always check the user list before creating a new account.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: FILE UPLOAD WORKFLOW ── -->
+    <div class="card mb-4" id="s9">
+      <div class="card-header" style="background:#0891b2">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-cloud-upload me-2"></i>9. File Upload &amp; Approval Workflow</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <h6 class="fw-bold mb-2">Partner uploads a file</h6>
+            <div class="d-flex flex-column gap-2">
+              {% for step in "1234"|make_list %}
+              <div class="d-flex gap-3 align-items-start">
+                <div class="step-circle">{{ forloop.counter }}</div>
+                <div class="small mt-1">
+                  {% if forloop.counter == 1 %}Partner logs in and goes to <strong>File Uploads</strong>{% endif %}
+                  {% if forloop.counter == 2 %}Clicks <strong>Upload File</strong>, selects a CSV or XLSX, adds a description, submits{% endif %}
+                  {% if forloop.counter == 3 %}System validates the file — checks required columns, data types, and duplicates. Validation errors are shown immediately.{% endif %}
+                  {% if forloop.counter == 4 %}On success, batch status becomes <strong>Pending Approval</strong>. Admin is notified.{% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h6 class="fw-bold mb-2">Admin approves or rejects</h6>
+            <div class="d-flex flex-column gap-2">
+              {% for step in "1234"|make_list %}
+              <div class="d-flex gap-3 align-items-start">
+                <div class="step-circle">{{ forloop.counter }}</div>
+                <div class="small mt-1">
+                  {% if forloop.counter == 1 %}Admin sees a yellow badge count on the <strong>File Uploads</strong> sidebar item{% endif %}
+                  {% if forloop.counter == 2 %}Opens the batch, reviews participant count and validation summary{% endif %}
+                  {% if forloop.counter == 3 %}Clicks <strong>Approve</strong> — Celery processes the file: pseudocodes are assigned, direct identifiers encrypted, participants added to the tracing queue{% endif %}
+                  {% if forloop.counter == 4 %}If <strong>Rejected</strong> — partner is notified with the reason; participants are not created{% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="callout callout-info mt-3">
+          <strong>SFTP uploads</strong> follow the same approval pipeline — files detected in partner SFTP folders are automatically ingested and appear in the upload queue as Pending Approval, ready for admin review.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 10: TRACING ── -->
+    <div class="card mb-4" id="s10">
+      <div class="card-header" style="background:#166534">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-search-heart me-2"></i>10. Tracing Workflow</h5>
+      </div>
+      <div class="card-body">
+        <p>Once a batch is approved and processed, participants appear in the tracing queue with status <strong>Uploaded</strong>. Tracers work through this queue.</p>
+        <ol class="small">
+          <li class="mb-2">Tracer goes to <span class="nav-path">/tracing/queue/</span> and opens a participant</li>
+          <li class="mb-2">Updates status to <strong>Tracing</strong> while actively searching</li>
+          <li class="mb-2">Once located, marks as <strong>Traced</strong> and fills in: contact method, location found, and any tracing notes</li>
+          <li class="mb-2">A <strong>TracingLog</strong> entry is created for every status change — full history is kept</li>
+          <li class="mb-2">Traced participants move to the traced queue and become available for supervisor assignment</li>
+        </ol>
+        <div class="callout callout-warn">
+          Only participants with status <strong>Traced</strong> appear in the assignment queue. If a participant disappears from the assignment queue, check their tracing status — they may still be in the tracing queue.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 11: ASSIGNMENTS ── -->
+    <div class="card mb-4" id="s11">
+      <div class="card-header" style="background:#7c3aed">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-person-check me-2"></i>11. Assignment Workflow</h5>
+      </div>
+      <div class="card-body">
+        <ol class="small">
+          <li class="mb-2">Supervisor goes to <span class="nav-path">/assignments/queue/</span></li>
+          <li class="mb-2">Selects one or more participants using the checkboxes</li>
+          <li class="mb-2">Selects an enumerator from the dropdown (supervisors only see their own enumerators)</li>
+          <li class="mb-2">Clicks <strong>Bulk Assign</strong></li>
+          <li class="mb-2">System creates <strong>Assignment</strong> records, updates participant status to <strong>Assigned</strong>, generates a secure CSV with decrypted participant identity data, and emails the enumerator a 30-minute download link</li>
+          <li class="mb-2">The enumerator also receives an in-app notification</li>
+        </ol>
+        <div class="callout callout-tip">
+          <strong>Re-assigning:</strong> If a download link expires before the enumerator downloads it, the supervisor can re-assign the same participants to regenerate a fresh link.
+        </div>
+        <div class="callout callout-info mt-2">
+          <strong>Secure CSV:</strong> The download CSV contains the enumerator's participants' full decrypted identities (name, phone, address, ID). It expires after 30 minutes. This ensures PII is never stored in plaintext on the server beyond what is necessary.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 12: INTERVIEWS ── -->
+    <div class="card mb-4" id="s12">
+      <div class="card-header" style="background:#dc2626">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-clipboard2-check me-2"></i>12. Interview Workflow</h5>
+      </div>
+      <div class="card-body">
+        <ol class="small">
+          <li class="mb-2">Enumerator goes to <span class="nav-path">/assignments/mine/</span></li>
+          <li class="mb-2">Each row has a <strong>Record Outcome</strong> dropdown. They choose the result of their field visit.</li>
+          <li class="mb-2">A modal confirms the choice, allows notes and a callback date if needed</li>
+          <li class="mb-2">An <strong>Interview</strong> record is created (or updated if already exists). Every change is recorded in <strong>InterviewStatusHistory</strong>.</li>
+          <li class="mb-2">On <strong>Interviewed</strong>: participant status updated to <em>Interviewed</em>, assignment marked <em>Completed</em></li>
+          <li class="mb-2">On <strong>Refused</strong> or <strong>Unreachable</strong>: assignment also marked Completed</li>
+        </ol>
+        <h6 class="fw-bold mt-3 mb-2">Supervisor Override</h6>
+        <p class="small">Supervisors can update any enumerator's participant outcome from <span class="nav-path">/assignments/</span> (Team Assignments). This is designed for when an enumerator has no internet access. The audit log records the supervisor as the person who made the change.</p>
+      </div>
+    </div>
+
+    <!-- ── SECTION 13: SFTP ── -->
+    <div class="card mb-4" id="s13">
+      <div class="card-header" style="background:#0f766e">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-hdd-network me-2"></i>13. SFTP Ingestion</h5>
+      </div>
+      <div class="card-body">
+        <p>SFTP ingestion allows partners to drop files into a secure FTP folder rather than uploading through the web interface. The system polls every 60 seconds.</p>
+        <h6 class="fw-bold mb-2">Configuring SFTP for a Partner</h6>
+        <ol class="small mb-3">
+          <li class="mb-1">Go to <span class="nav-path">/sftp/config/</span> and click <strong>Add SFTP Config</strong></li>
+          <li class="mb-1">Enter the host, port, username, and password for the partner's SFTP account</li>
+          <li class="mb-1">Set the <strong>Remote Folder</strong> — the folder the system will watch for new files</li>
+          <li class="mb-1">Link to the correct <strong>Partner</strong> organisation</li>
+          <li class="mb-1">Toggle <strong>Active</strong> to enable polling</li>
+        </ol>
+        <h6 class="fw-bold mb-2">Monitoring SFTP Activity</h6>
+        <p class="small">All ingestion events are logged at <span class="nav-path">/sftp/</span>. Each log entry shows the detected file, its status (pending / processing / completed / failed), and any error messages. Failed ingestions do not affect other files.</p>
+        <div class="callout callout-warn">
+          SFTP keys must be generated before the first server start. Run <code>bash scripts/generate_sftp_keys.sh</code> from the project root. If the SFTP container fails to start, this is the most common cause.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 14: AUDIT & SECURITY ── -->
+    <div class="card mb-4" id="s14">
+      <div class="card-header" style="background:#374151">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-journal-check me-2"></i>14. Audit Log &amp; Security Controls</h5>
+      </div>
+      <div class="card-body">
+        <h6 class="fw-bold mb-2">Audit Log</h6>
+        <p class="small">Every significant action in the system creates an immutable <strong>AuditLog</strong> entry. These records cannot be edited or deleted. Each entry captures:</p>
+        <ul class="small mb-3">
+          <li><strong>Action type</strong> — e.g. LOGIN, UPLOAD, APPROVE_BATCH, INTERVIEW_UPDATE, REIDENTIFY</li>
+          <li><strong>User</strong> — who performed the action</li>
+          <li><strong>Timestamp</strong> — exact date and time (Africa/Nairobi timezone)</li>
+          <li><strong>IP address</strong> — originating IP</li>
+          <li><strong>Session ID</strong> — to correlate with other actions in the same session</li>
+          <li><strong>Old and new values</strong> — for status changes</li>
+          <li><strong>Description</strong> — human-readable summary</li>
+        </ul>
+        <h6 class="fw-bold mb-2">Session Management</h6>
+        <ul class="small mb-3">
+          <li>Sessions expire after a configurable period of inactivity (default: 30 minutes). The user is redirected to login with a "session expired" message.</li>
+          <li>When a new browser tab is opened while someone is already signed in, a <strong>session confirmation modal</strong> appears asking to continue or switch user.</li>
+          <li>Only one active Django session per browser. Logging out one tab logs out all tabs in that browser.</li>
+        </ul>
+        <h6 class="fw-bold mb-2">Data Protection</h6>
+        <ul class="small">
+          <li><strong>Fernet encryption</strong> — all direct identifiers (name, ID, phone) are encrypted at rest with a symmetric key (<code>FIELD_ENCRYPTION_KEY</code>). If this key is lost, direct identifiers cannot be recovered.</li>
+          <li><strong>Pseudocode separation</strong> — the main participant record only stores quasi-identifiers. The identity is in a separate <code>IdentityMap</code> table.</li>
+          <li><strong>Re-identification gate</strong> — only System Admins and Compliance Officers can access the re-identify view. Every access is logged.</li>
+          <li><strong>HTTPS + mTLS</strong> — all browser traffic is encrypted in transit via Nginx + mutual TLS.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── SECTION 15: TROUBLESHOOTING ── -->
+    <div class="card mb-4" id="s15">
+      <div class="card-header" style="background:#b45309">
+        <h5 class="mb-0 text-white fw-bold"><i class="bi bi-tools me-2"></i>15. Common Issues &amp; Troubleshooting</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered manual-table">
+            <thead><tr><th style="width:35%">Problem</th><th>Likely Cause</th><th>Solution</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>User receives welcome email but the link is expired</td>
+                <td>Password setup links expire after 24 hours</td>
+                <td>Admin goes to User Management, finds the user, clicks <strong>Reset Password</strong> to send a new link</td>
+              </tr>
+              <tr>
+                <td>Cannot create a new user — "Email already exists" error</td>
+                <td>An account with that email is already registered</td>
+                <td>Search the user list for the email. If active, no new account needed. If inactive, re-enable the existing account.</td>
+              </tr>
+              <tr>
+                <td>Participant not appearing in Assignment Queue</td>
+                <td>Participant is not in <em>Traced</em> status</td>
+                <td>Check the Tracing Queue — the participant may still be in <em>Tracing</em> or <em>Cannot Trace</em> status</td>
+              </tr>
+              <tr>
+                <td>Enumerator says download CSV link doesn't work</td>
+                <td>30-minute token has expired</td>
+                <td>Supervisor re-assigns the participants to generate a fresh link and email</td>
+              </tr>
+              <tr>
+                <td>Upload file fails validation</td>
+                <td>Missing required columns or data format errors</td>
+                <td>View the batch detail for specific row-level errors. Partner should correct the file and re-upload.</td>
+              </tr>
+              <tr>
+                <td>SFTP ingestion shows "Failed" entries</td>
+                <td>Connection error, wrong credentials, or malformed file</td>
+                <td>Go to SFTP Config, verify host/port/credentials. Check the SFTP ingestion log for the specific error message.</td>
+              </tr>
+              <tr>
+                <td>User sees blank page after login</td>
+                <td>Account has no role assigned</td>
+                <td>Go to User Management, find the user, edit and assign the correct role</td>
+              </tr>
+              <tr>
+                <td>Session confirmation prompt doesn't disappear</td>
+                <td>Browser storage issue</td>
+                <td>Clear browser site data / cookies and re-login. The prompt will appear once on the next new tab.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-info mt-3">
+          <strong>Server-level issues</strong> (database down, Celery not processing, email not sending) require access to the production server. Contact the system administrator at <strong>root@kenya1</strong>. All application logs are available via <code>docker compose logs -f</code>.
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center text-muted small py-3 border-top">
+      ICED SPDITS Admin Training Manual &nbsp;|&nbsp; The International Centre for Evaluation and Development &nbsp;|&nbsp; For authorised administrators only
+    </div>
+
+  </div><!-- /col-lg-9 -->
+</div><!-- /row -->
+{% endblock %}

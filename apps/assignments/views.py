@@ -266,13 +266,64 @@ class AssignmentListView(LoginRequiredMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
+        from apps.interviews.models import InterviewStatus
         user = self.request.user
-        qs = Assignment.objects.select_related('participant', 'enumerator', 'supervisor')
+        qs = Assignment.objects.select_related(
+            'participant', 'participant__partner', 'enumerator', 'supervisor'
+        ).prefetch_related('interview')
         if user.is_enumerator():
             qs = qs.filter(enumerator=user)
         elif user.is_supervisor():
-            qs = qs.filter(supervisor=user)
+            qs = qs.filter(enumerator__supervisor=user)
+        enumerator_id = self.request.GET.get('enumerator')
+        if enumerator_id:
+            qs = qs.filter(enumerator_id=enumerator_id)
+        interview_status = self.request.GET.get('interview_status')
+        if interview_status:
+            qs = qs.filter(interview__status=interview_status)
         return qs
+
+    def get_context_data(self, **kwargs):
+        from apps.accounts.models import CustomUser
+        from apps.interviews.models import InterviewStatus
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        badge_map = {
+            InterviewStatus.PENDING: 'secondary',
+            InterviewStatus.ASSIGNED: 'primary',
+            InterviewStatus.IN_PROGRESS: 'warning',
+            InterviewStatus.COMPLETED: 'success',
+            InterviewStatus.REFUSED: 'danger',
+            InterviewStatus.UNREACHABLE: 'dark',
+            InterviewStatus.CALLBACK_REQUIRED: 'info',
+        }
+        label_map = dict(InterviewStatus.choices)
+        for a in ctx['assignments']:
+            try:
+                iv = a.interview
+                a.interview_status = iv.status
+                a.interview_badge = badge_map.get(iv.status, 'secondary')
+                a.interview_status_display = label_map.get(iv.status, iv.status)
+                a.interview_pk = iv.pk
+            except Exception:
+                a.interview_status = None
+                a.interview_badge = 'secondary'
+                a.interview_status_display = 'Not Started'
+                a.interview_pk = None
+
+        ctx['interview_statuses'] = InterviewStatus.choices
+        if user.is_supervisor():
+            ctx['enumerators'] = CustomUser.objects.filter(
+                supervisor=user, is_active=True
+            ).order_by('first_name', 'last_name')
+        elif user.is_admin():
+            ctx['enumerators'] = CustomUser.objects.filter(
+                role='enumerator', is_active=True
+            ).order_by('first_name', 'last_name')
+        else:
+            ctx['enumerators'] = []
+        return ctx
 
 
 class AssignmentExportView(LoginRequiredMixin, View):

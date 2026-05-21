@@ -25,7 +25,11 @@ class LoginView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('dashboards:home')
+            return render(request, self.template_name, {
+                'already_logged_in': True,
+                'current_user': request.user,
+                'form': CustomLoginForm(),
+            })
         form = CustomLoginForm()
         return render(request, self.template_name, {'form': form})
 

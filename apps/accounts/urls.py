@@ -26,6 +26,7 @@ urlpatterns = [
     path('partners/', views.PartnerListView.as_view(), name='partner_list'),
     path('partners/create/', views.PartnerCreateView.as_view(), name='partner_create'),
     path('partners/<int:pk>/edit/', views.PartnerEditView.as_view(), name='partner_edit'),
+    path('admin-manual/', views.AdminManualView.as_view(), name='admin_manual'),
     # Self-service password reset (Django built-in, uses Graph email backend)
     path('password-reset/',
          auth_views.PasswordResetView.as_view(

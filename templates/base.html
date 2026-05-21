@@ -113,6 +113,11 @@
       <a href="{% url 'user_manual' %}" class="list-group-item list-group-item-action bg-transparent text-white" target="_blank">
         <i class="bi bi-book me-2"></i> User Manual
       </a>
+      {% if is_admin %}
+      <a href="{% url 'accounts:admin_manual' %}" class="list-group-item list-group-item-action bg-transparent text-white {% block nav_admin_manual %}{% endblock %}">
+        <i class="bi bi-journal-text me-2"></i> Admin Training Manual
+      </a>
+      {% endif %}
     </div>
   </div>
 
